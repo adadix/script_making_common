@@ -1378,33 +1378,45 @@ def run_discovery_pipeline(force: bool = False) -> bool:
     for p in fuse_paths:
         log.info(f"    - {p}")
 
-    # Step 3: load fuse RAM (required before register reads)
-    print(f"  [Step 3] Loading fuse RAM from {fuse_root} (up to 12 min)...",
-          flush=True)
-    log.info(f"\n[*] Step 3: Loading fuse RAM (this takes 2-5 min)...")
-    if not load_fuse_ram_once(fuse_root):
-        log.error("Fuse RAM load failed — register values may be unavailable; "
-              "continuing anyway")
-        print("  [!] Fuse RAM load failed — continuing anyway.", flush=True)
+    # Step 3: load fuse RAM for EVERY discovered root.
+    # Each fuse root (cdie.fuses, soc.fuses, …) has its own independent fuse
+    # RAM bank that must be loaded separately before registers can be read.
+    # Previously only the config-hint root was loaded — soc.fuses and any
+    # other additional roots were silently skipped.
+    _all_roots_to_load: list = []
+    _seen_roots_step3: set = set()
+    for _fp in fuse_paths:
+        _parts = _fp.split('.')
+        if len(_parts) >= 2:
+            _r = '.'.join(_parts[:2])
+            if _r not in _seen_roots_step3:
+                _all_roots_to_load.append(_r)
+                _seen_roots_step3.add(_r)
+    # Always include the config-hint root even if discover_fuse_paths missed it
+    if fuse_root not in _seen_roots_step3:
+        _all_roots_to_load.insert(0, fuse_root)
 
-    # Register ALL discovered fuse roots so the session guard in
-    # hardware_access._LOADED_FUSE_RAM_PATHS covers every root found on
-    # this platform (e.g. both 'cdie.fuses' AND 'soc.fuses').  Without this,
-    # the UI's open_registers_tab() would re-call load_fuse_ram for sibling
-    # roots, triggering a _enable_dcg postcondition write → cold reset.
+    log.info(f"\n[*] Step 3: Loading fuse RAM for {len(_all_roots_to_load)} root(s): "
+             f"{_all_roots_to_load}")
+    for _root_idx, _load_root in enumerate(_all_roots_to_load):
+        print(f"  [Step 3] Loading fuse RAM from {_load_root} "
+              f"({_root_idx + 1}/{len(_all_roots_to_load)}, up to 12 min)...",
+              flush=True)
+        if not load_fuse_ram_once(_load_root):
+            log.error(f"Fuse RAM load failed for '{_load_root}' — "
+                      f"register values from this root may be unavailable; continuing")
+            print(f"  [!] Fuse RAM load failed for {_load_root} — continuing.",
+                  flush=True)
+
+    # Mark every loaded root in the session guard so the UI never re-loads them
+    # (re-loading triggers an _enable_dcg postcondition write → cold reset).
     try:
         from utils.hardware_access import notify_fuse_ram_loaded
-        _seen_roots_pipeline: set = set()
-        for _fp in fuse_paths:
-            _parts = _fp.split('.')
-            if len(_parts) >= 2:
-                _root: str = '.'.join(_parts[:2])  # e.g. 'cdie.fuses', 'soc.fuses'
-                if _root not in _seen_roots_pipeline:
-                    notify_fuse_ram_loaded(_root)
-                    _seen_roots_pipeline.add(_root)
-                    log.info(f"Session guard: registered fuse root '{_root}' as loaded")
+        for _r in _all_roots_to_load:
+            notify_fuse_ram_loaded(_r)
+            log.info(f"Session guard: registered fuse root '{_r}' as loaded")
     except Exception as _nfl_err:
-        log.warning(f"Could not register sibling fuse roots: {_nfl_err}")
+        log.warning(f"Could not register fuse roots in session guard: {_nfl_err}")
 
     # Step 4: analyse all fuse paths — with cold-reset resume support
     _n_paths: int = len(fuse_paths)

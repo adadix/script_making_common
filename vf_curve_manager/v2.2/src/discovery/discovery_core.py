@@ -474,9 +474,16 @@ def _enumerate_fuse_roots() -> list:
                 node = getattr(_nn, node_name, None)
             except Exception:
                 continue
-            if node is None or callable(node):
+            if node is None:
                 continue
-            if hasattr(node, 'fuses'):
+            # NOTE: do NOT skip callable nodes.  pythonsv proxy objects (soc,
+            # cdie, hub, …) often implement __call__ making callable() return
+            # True — filtering them out silently drops valid fuse roots.
+            try:
+                has_fuses = hasattr(node, 'fuses')
+            except Exception:
+                continue
+            if has_fuses:
                 fuse_root: str = f"{node_name}.fuses"
                 obj = resolve_object(fuse_root)
                 if obj is not None:
@@ -559,8 +566,10 @@ def probe_namednodes() -> dict:
             node = getattr(_nn, node_name, None)
         except Exception:
             continue
-        if node is None or callable(node):
+        if node is None:
             continue
+        # NOTE: do NOT skip callable nodes — pythonsv proxy objects implement
+        # __call__ so callable() returns True for valid nodes like soc, cdie, hub.
 
         # Collect shallow public attributes for this node
         try:
