@@ -1,0 +1,1035 @@
+{
+  "_platform": "wildcatlake",
+  "_platform_updated": "2026-03-04 11:58:31",
+  "_generated_by": "build_vf_domains_from_discovery",
+  "domains": {
+    "cluster0_atom": {
+      "label": "Cluster0 Atom",
+      "freq_multiplier": 100.0,
+      "wp_count": 10,
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "fuse_ram_path": "cdie.fuses",
+      "vf_voltage": [
+        "fw_fuses_cluster0_atom_vf_voltage_0",
+        "fw_fuses_cluster0_atom_vf_voltage_1",
+        "fw_fuses_cluster0_atom_vf_voltage_2",
+        "fw_fuses_cluster0_atom_vf_voltage_3",
+        "fw_fuses_cluster0_atom_vf_voltage_4",
+        "fw_fuses_cluster0_atom_vf_voltage_5",
+        "fw_fuses_cluster0_atom_vf_voltage_6",
+        "fw_fuses_cluster0_atom_vf_voltage_7",
+        "fw_fuses_cluster0_atom_vf_voltage_8",
+        "fw_fuses_cluster0_atom_vf_voltage_9"
+      ],
+      "vf_ratio": [
+        "fw_fuses_cluster0_atom_vf_ratio_0",
+        "fw_fuses_cluster0_atom_vf_ratio_1",
+        "fw_fuses_cluster0_atom_vf_ratio_2",
+        "fw_fuses_cluster0_atom_vf_ratio_3",
+        "fw_fuses_cluster0_atom_vf_ratio_4",
+        "fw_fuses_cluster0_atom_vf_ratio_5",
+        "fw_fuses_cluster0_atom_vf_ratio_6",
+        "fw_fuses_cluster0_atom_vf_ratio_7",
+        "fw_fuses_cluster0_atom_vf_ratio_8",
+        "fw_fuses_cluster0_atom_vf_ratio_9"
+      ]
+    },
+    "cluster0_bigcore": {
+      "label": "Cluster0 Bigcore",
+      "freq_multiplier": 100.0,
+      "wp_count": 10,
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "fuse_ram_path": "cdie.fuses",
+      "vf_voltage": [
+        "fw_fuses_cluster0_bigcore_vf_voltage_0",
+        "fw_fuses_cluster0_bigcore_vf_voltage_1",
+        "fw_fuses_cluster0_bigcore_vf_voltage_2",
+        "fw_fuses_cluster0_bigcore_vf_voltage_3",
+        "fw_fuses_cluster0_bigcore_vf_voltage_4",
+        "fw_fuses_cluster0_bigcore_vf_voltage_5",
+        "fw_fuses_cluster0_bigcore_vf_voltage_6",
+        "fw_fuses_cluster0_bigcore_vf_voltage_7",
+        "fw_fuses_cluster0_bigcore_vf_voltage_8",
+        "fw_fuses_cluster0_bigcore_vf_voltage_9"
+      ],
+      "vf_ratio": [
+        "fw_fuses_cluster0_bigcore_vf_ratio_0",
+        "fw_fuses_cluster0_bigcore_vf_ratio_1",
+        "fw_fuses_cluster0_bigcore_vf_ratio_2",
+        "fw_fuses_cluster0_bigcore_vf_ratio_3",
+        "fw_fuses_cluster0_bigcore_vf_ratio_4",
+        "fw_fuses_cluster0_bigcore_vf_ratio_5",
+        "fw_fuses_cluster0_bigcore_vf_ratio_6",
+        "fw_fuses_cluster0_bigcore_vf_ratio_7",
+        "fw_fuses_cluster0_bigcore_vf_ratio_8",
+        "fw_fuses_cluster0_bigcore_vf_ratio_9"
+      ],
+      "flatten_freq_ratios": {
+        "min": "fw_fuses_ia_min_ratio",
+        "p0": "fw_fuses_ia_p0_ratio",
+        "p1": "fw_fuses_ia_p1_ratio",
+        "pn": "fw_fuses_ia_pn_ratio"
+      }
+    },
+    "cluster1_atom": {
+      "label": "Cluster1 Atom",
+      "freq_multiplier": 100.0,
+      "wp_count": 10,
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "fuse_ram_path": "cdie.fuses",
+      "vf_voltage": [
+        "fw_fuses_cluster1_atom_vf_voltage_0",
+        "fw_fuses_cluster1_atom_vf_voltage_1",
+        "fw_fuses_cluster1_atom_vf_voltage_2",
+        "fw_fuses_cluster1_atom_vf_voltage_3",
+        "fw_fuses_cluster1_atom_vf_voltage_4",
+        "fw_fuses_cluster1_atom_vf_voltage_5",
+        "fw_fuses_cluster1_atom_vf_voltage_6",
+        "fw_fuses_cluster1_atom_vf_voltage_7",
+        "fw_fuses_cluster1_atom_vf_voltage_8",
+        "fw_fuses_cluster1_atom_vf_voltage_9"
+      ],
+      "vf_ratio": [
+        "fw_fuses_cluster1_atom_vf_ratio_0",
+        "fw_fuses_cluster1_atom_vf_ratio_1",
+        "fw_fuses_cluster1_atom_vf_ratio_2",
+        "fw_fuses_cluster1_atom_vf_ratio_3",
+        "fw_fuses_cluster1_atom_vf_ratio_4",
+        "fw_fuses_cluster1_atom_vf_ratio_5",
+        "fw_fuses_cluster1_atom_vf_ratio_6",
+        "fw_fuses_cluster1_atom_vf_ratio_7",
+        "fw_fuses_cluster1_atom_vf_ratio_8",
+        "fw_fuses_cluster1_atom_vf_ratio_9"
+      ]
+    },
+    "de": {
+      "label": "DE",
+      "freq_multiplier": 24.0,
+      "wp_count": 4,
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "fuse_ram_path": "cdie.fuses",
+      "voltage_lsb_mv": 3.90625,
+      "vf_voltage": [
+        "fw_fuses_de_vf_voltage_0",
+        "fw_fuses_de_vf_voltage_1",
+        "fw_fuses_de_vf_voltage_2",
+        "fw_fuses_de_vf_voltage_3"
+      ],
+      "vf_ratio": [
+        "fw_fuses_de_vf_ratio_0",
+        "fw_fuses_de_vf_ratio_1",
+        "fw_fuses_de_vf_ratio_2",
+        "fw_fuses_de_vf_ratio_3"
+      ],
+      "vf_voltage_adder": [
+        "fw_fuses_de_vf_voltage_reg_adder_0",
+        "fw_fuses_de_vf_voltage_reg_adder_1",
+        "fw_fuses_de_vf_voltage_reg_adder_2",
+        "fw_fuses_de_vf_voltage_reg_adder_3"
+      ]
+    },
+    "gt": {
+      "label": "GT",
+      "freq_multiplier": 50.0,
+      "wp_count": 6,
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "fuse_ram_path": "cdie.fuses",
+      "vf_voltage": [
+        "fw_fuses_gt_vf_voltage_0",
+        "fw_fuses_gt_vf_voltage_1",
+        "fw_fuses_gt_vf_voltage_2",
+        "fw_fuses_gt_vf_voltage_3",
+        "fw_fuses_gt_vf_voltage_4",
+        "fw_fuses_gt_vf_voltage_5"
+      ],
+      "vf_ratio": [
+        "fw_fuses_gt_vf_ratio_0",
+        "fw_fuses_gt_vf_ratio_1",
+        "fw_fuses_gt_vf_ratio_2",
+        "fw_fuses_gt_vf_ratio_3",
+        "fw_fuses_gt_vf_ratio_4",
+        "fw_fuses_gt_vf_ratio_5"
+      ],
+      "flatten_freq_ratios": {
+        "min": "fw_fuses_gt_min_ratio",
+        "p0": "fw_fuses_gt_p0_ratio",
+        "p1": "fw_fuses_gt_p1_ratio",
+        "pn": "fw_fuses_gt_pn_ratio"
+      }
+    },
+    "gt_acm_vpg": {
+      "label": "GT ACM VPG",
+      "freq_multiplier": 50.0,
+      "wp_count": 6,
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "fuse_ram_path": "cdie.fuses",
+      "vf_voltage": [
+        "fw_fuses_gt_vf_voltage_acm_vpg_0",
+        "fw_fuses_gt_vf_voltage_acm_vpg_1",
+        "fw_fuses_gt_vf_voltage_acm_vpg_2",
+        "fw_fuses_gt_vf_voltage_acm_vpg_3",
+        "fw_fuses_gt_vf_voltage_acm_vpg_4",
+        "fw_fuses_gt_vf_voltage_acm_vpg_5"
+      ],
+      "vf_ratio": [
+        "fw_fuses_gt_vf_ratio_acm_vpg_0",
+        "fw_fuses_gt_vf_ratio_acm_vpg_1",
+        "fw_fuses_gt_vf_ratio_acm_vpg_2",
+        "fw_fuses_gt_vf_ratio_acm_vpg_3",
+        "fw_fuses_gt_vf_ratio_acm_vpg_4",
+        "fw_fuses_gt_vf_ratio_acm_vpg_5"
+      ],
+      "flatten_freq_ratios": {
+        "min": "fw_fuses_gt_min_ratio",
+        "p0": "fw_fuses_gt_p0_ratio",
+        "p1": "fw_fuses_gt_p1_ratio",
+        "pn": "fw_fuses_gt_pn_ratio"
+      }
+    },
+    "media": {
+      "label": "Media",
+      "freq_multiplier": 50.0,
+      "wp_count": 6,
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "fuse_ram_path": "cdie.fuses",
+      "voltage_lsb_mv": 3.90625,
+      "vf_voltage": [
+        "fw_fuses_media_vf_voltage_0",
+        "fw_fuses_media_vf_voltage_1",
+        "fw_fuses_media_vf_voltage_2",
+        "fw_fuses_media_vf_voltage_3",
+        "fw_fuses_media_vf_voltage_4",
+        "fw_fuses_media_vf_voltage_5"
+      ],
+      "vf_ratio": [
+        "fw_fuses_media_vf_ratio_0",
+        "fw_fuses_media_vf_ratio_1",
+        "fw_fuses_media_vf_ratio_2",
+        "fw_fuses_media_vf_ratio_3",
+        "fw_fuses_media_vf_ratio_4",
+        "fw_fuses_media_vf_ratio_5"
+      ],
+      "vf_voltage_adder": [
+        "fw_fuses_media_vf_voltage_reg_adder_0",
+        "fw_fuses_media_vf_voltage_reg_adder_1",
+        "fw_fuses_media_vf_voltage_reg_adder_2",
+        "fw_fuses_media_vf_voltage_reg_adder_3",
+        "fw_fuses_media_vf_voltage_reg_adder_4",
+        "fw_fuses_media_vf_voltage_reg_adder_5"
+      ],
+      "flatten_freq_ratios": {
+        "min": "fw_fuses_media_min_ratio",
+        "p0": "fw_fuses_media_p0_ratio",
+        "p1": "fw_fuses_media_p1_ratio",
+        "pn": "fw_fuses_media_pn_ratio"
+      }
+    },
+    "nclk": {
+      "label": "NCLK",
+      "freq_multiplier": 50.0,
+      "wp_count": 5,
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "fuse_ram_path": "cdie.fuses",
+      "voltage_lsb_mv": 3.90625,
+      "vf_voltage": [
+        "fw_fuses_nclk_vf_voltage_0",
+        "fw_fuses_nclk_vf_voltage_1",
+        "fw_fuses_nclk_vf_voltage_2",
+        "fw_fuses_nclk_vf_voltage_3",
+        "fw_fuses_nclk_vf_voltage_4"
+      ],
+      "vf_ratio": [
+        "fw_fuses_nclk_vf_ratio_0",
+        "fw_fuses_nclk_vf_ratio_1",
+        "fw_fuses_nclk_vf_ratio_2",
+        "fw_fuses_nclk_vf_ratio_3",
+        "fw_fuses_nclk_vf_ratio_4"
+      ],
+      "vf_voltage_adder": [
+        "fw_fuses_nclk_vf_voltage_reg_adder_0",
+        "fw_fuses_nclk_vf_voltage_reg_adder_1",
+        "fw_fuses_nclk_vf_voltage_reg_adder_2",
+        "fw_fuses_nclk_vf_voltage_reg_adder_3",
+        "fw_fuses_nclk_vf_voltage_reg_adder_4"
+      ]
+    },
+    "ring": {
+      "label": "Ring",
+      "freq_multiplier": 100.0,
+      "wp_count": 10,
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "fuse_ram_path": "cdie.fuses",
+      "vf_voltage": [
+        "fw_fuses_ring_vf_voltage_0",
+        "fw_fuses_ring_vf_voltage_1",
+        "fw_fuses_ring_vf_voltage_2",
+        "fw_fuses_ring_vf_voltage_3",
+        "fw_fuses_ring_vf_voltage_4",
+        "fw_fuses_ring_vf_voltage_5",
+        "fw_fuses_ring_vf_voltage_6",
+        "fw_fuses_ring_vf_voltage_7",
+        "fw_fuses_ring_vf_voltage_8",
+        "fw_fuses_ring_vf_voltage_9"
+      ],
+      "vf_ratio": [
+        "fw_fuses_ring_vf_ratio_0",
+        "fw_fuses_ring_vf_ratio_1",
+        "fw_fuses_ring_vf_ratio_2",
+        "fw_fuses_ring_vf_ratio_3",
+        "fw_fuses_ring_vf_ratio_4",
+        "fw_fuses_ring_vf_ratio_5",
+        "fw_fuses_ring_vf_ratio_6",
+        "fw_fuses_ring_vf_ratio_7",
+        "fw_fuses_ring_vf_ratio_8",
+        "fw_fuses_ring_vf_ratio_9"
+      ],
+      "flatten_freq_ratios": {
+        "min": "fw_fuses_ring_min_ratio",
+        "p0": "fw_fuses_ring_p0_ratio",
+        "p1": "fw_fuses_ring_p1_ratio",
+        "pn": "fw_fuses_ring_pn_ratio"
+      }
+    },
+    "sa_qclk": {
+      "label": "SA QCLK",
+      "freq_multiplier": 33.33,
+      "wp_count": 6,
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "fuse_ram_path": "cdie.fuses",
+      "voltage_lsb_mv": 3.90625,
+      "vf_voltage": [
+        "fw_fuses_sa_qclk_vf_voltage_0",
+        "fw_fuses_sa_qclk_vf_voltage_1",
+        "fw_fuses_sa_qclk_vf_voltage_2",
+        "fw_fuses_sa_qclk_vf_voltage_3",
+        "fw_fuses_sa_qclk_vf_voltage_4",
+        "fw_fuses_sa_qclk_vf_voltage_5"
+      ],
+      "vf_ratio": [
+        "fw_fuses_sa_qclk_vf_ratio_0",
+        "fw_fuses_sa_qclk_vf_ratio_1",
+        "fw_fuses_sa_qclk_vf_ratio_2",
+        "fw_fuses_sa_qclk_vf_ratio_3",
+        "fw_fuses_sa_qclk_vf_ratio_4",
+        "fw_fuses_sa_qclk_vf_ratio_5"
+      ],
+      "vf_voltage_adder": [
+        "fw_fuses_sa_qclk_vf_voltage_reg_adder_0",
+        "fw_fuses_sa_qclk_vf_voltage_reg_adder_1",
+        "fw_fuses_sa_qclk_vf_voltage_reg_adder_2",
+        "fw_fuses_sa_qclk_vf_voltage_reg_adder_3",
+        "fw_fuses_sa_qclk_vf_voltage_reg_adder_4",
+        "fw_fuses_sa_qclk_vf_voltage_reg_adder_5"
+      ]
+    },
+    "vpu": {
+      "label": "VPU",
+      "freq_multiplier": 50.0,
+      "wp_count": 3,
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "fuse_ram_path": "cdie.fuses",
+      "voltage_lsb_mv": 3.90625,
+      "vf_voltage": [
+        "fw_fuses_vpu_vf_voltage_0",
+        "fw_fuses_vpu_vf_voltage_1",
+        "fw_fuses_vpu_vf_voltage_2"
+      ],
+      "vf_ratio": [
+        "fw_fuses_vpu_vf_ratio_0",
+        "fw_fuses_vpu_vf_ratio_1",
+        "fw_fuses_vpu_vf_ratio_2"
+      ],
+      "vf_voltage_adder": [
+        "fw_fuses_vpu_vf_voltage_reg_adder_0",
+        "fw_fuses_vpu_vf_voltage_reg_adder_1",
+        "fw_fuses_vpu_vf_voltage_reg_adder_2"
+      ]
+    },
+    "core0_bigcore_base_vf": {
+      "label": "Core0 Bigcore Base VF",
+      "freq_multiplier": 100.0,
+      "wp_count": 12,
+      "fuse_path": "cdie.fuses.core0_fuse",
+      "fuse_ram_path": "cdie.fuses",
+      "vf_voltage": [
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_0",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_1",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_2",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_3",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_4",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_5",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_6",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_7",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_8",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_9",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_10",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_11"
+      ],
+      "vf_ratio": [
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_0",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_1",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_2",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_3",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_4",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_5",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_6",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_7",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_8",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_9",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_10",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_11"
+      ],
+      "vf_voltage_delta_idx1": [
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_0",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_1",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_2",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_3",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_4",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_5",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_6",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_7",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_8",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_9",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_10",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_11"
+      ],
+      "vf_voltage_delta_idx2": [
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_0",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_1",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_2",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_3",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_4",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_5",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_6",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_7",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_8",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_9",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_10",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_11"
+      ]
+    },
+    "core1_bigcore_base_vf": {
+      "label": "Core1 Bigcore Base VF",
+      "freq_multiplier": 100.0,
+      "wp_count": 12,
+      "fuse_path": "cdie.fuses.core1_fuse",
+      "fuse_ram_path": "cdie.fuses",
+      "vf_voltage": [
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_0",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_1",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_2",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_3",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_4",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_5",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_6",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_7",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_8",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_9",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_10",
+        "core_fuse_core_fuse_acode_ia_base_vf_voltage_11"
+      ],
+      "vf_ratio": [
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_0",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_1",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_2",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_3",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_4",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_5",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_6",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_7",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_8",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_9",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_10",
+        "core_fuse_core_fuse_acode_ia_base_vf_ratio_11"
+      ],
+      "vf_voltage_delta_idx1": [
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_0",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_1",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_2",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_3",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_4",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_5",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_6",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_7",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_8",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_9",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_10",
+        "core_fuse_core_fuse_acode_ia_delta_idx1_vf_voltage_11"
+      ],
+      "vf_voltage_delta_idx2": [
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_0",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_1",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_2",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_3",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_4",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_5",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_6",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_7",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_8",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_9",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_10",
+        "core_fuse_core_fuse_acode_ia_delta_idx2_vf_voltage_11"
+      ]
+    }
+  },
+  "scalar_modifiers": {
+    "fw_fuses_cluster0_atom_itd_cutoff_v": {
+      "type": "itd_voltage",
+      "label": "ITD Cluster0 Atom Itd Cutoff V",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster0_atom_itd_cutoff_v",
+      "encoding": "voltage_mv",
+      "voltage_lsb_mv": 3.90625,
+      "description": "The voltage from which and below, ITD effect is relevant. The fuse is in U9.1.8 volts"
+    },
+    "fw_fuses_cluster0_atom_itd_cutoff_v2": {
+      "type": "itd_voltage",
+      "label": "ITD Cluster0 Atom Itd Cutoff V2",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster0_atom_itd_cutoff_v2",
+      "encoding": "voltage_mv",
+      "voltage_lsb_mv": 3.90625,
+      "description": "The voltage from which and below, ITD effect is relevant. The fuse is in U9.1.8 volts"
+    },
+    "fw_fuses_cluster0_atom_itd_floor_v": {
+      "type": "itd_voltage",
+      "label": "ITD Cluster0 Atom Itd Floor V",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster0_atom_itd_floor_v",
+      "encoding": "voltage_mv",
+      "voltage_lsb_mv": 3.90625,
+      "description": "ITD correction for voltages below FLOOR_V will be the same as for FLOOR_V. See RPL HSD 1309935722"
+    },
+    "fw_fuses_cluster0_bigcore_itd_cutoff_v": {
+      "type": "itd_voltage",
+      "label": "ITD Cluster0 Bigcore Itd Cutoff V",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster0_bigcore_itd_cutoff_v",
+      "encoding": "voltage_mv",
+      "voltage_lsb_mv": 3.90625,
+      "description": "The voltage from which and below, ITD effect is relevant. The fuse is in U9.1.8 volts"
+    },
+    "fw_fuses_cluster0_bigcore_itd_cutoff_v2": {
+      "type": "itd_voltage",
+      "label": "ITD Cluster0 Bigcore Itd Cutoff V2",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster0_bigcore_itd_cutoff_v2",
+      "encoding": "voltage_mv",
+      "voltage_lsb_mv": 3.90625,
+      "description": "The voltage from which and below, ITD effect is relevant. The fuse is in U9.1.8 volts"
+    },
+    "fw_fuses_cluster0_bigcore_itd_floor_v": {
+      "type": "itd_voltage",
+      "label": "ITD Cluster0 Bigcore Itd Floor V",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster0_bigcore_itd_floor_v",
+      "encoding": "voltage_mv",
+      "voltage_lsb_mv": 3.90625,
+      "description": "ITD correction for voltages below FLOOR_V will be the same as for FLOOR_V. See RPL HSD 1309935722"
+    },
+    "fw_fuses_cluster1_atom_itd_cutoff_v": {
+      "type": "itd_voltage",
+      "label": "ITD Cluster1 Atom Itd Cutoff V",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster1_atom_itd_cutoff_v",
+      "encoding": "voltage_mv",
+      "voltage_lsb_mv": 3.90625,
+      "description": "The voltage from which and below, ITD effect is relevant. The fuse is in U9.1.8 volts"
+    },
+    "fw_fuses_cluster1_atom_itd_cutoff_v2": {
+      "type": "itd_voltage",
+      "label": "ITD Cluster1 Atom Itd Cutoff V2",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster1_atom_itd_cutoff_v2",
+      "encoding": "voltage_mv",
+      "voltage_lsb_mv": 3.90625,
+      "description": "The voltage from which and below, ITD effect is relevant. The fuse is in U9.1.8 volts"
+    },
+    "fw_fuses_cluster1_atom_itd_floor_v": {
+      "type": "itd_voltage",
+      "label": "ITD Cluster1 Atom Itd Floor V",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster1_atom_itd_floor_v",
+      "encoding": "voltage_mv",
+      "voltage_lsb_mv": 3.90625,
+      "description": "ITD correction for voltages below FLOOR_V will be the same as for FLOOR_V. See RPL HSD 1309935722"
+    },
+    "fw_fuses_gt_itd_cutoff_v": {
+      "type": "itd_voltage",
+      "label": "ITD Gt Itd Cutoff V",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_gt_itd_cutoff_v",
+      "encoding": "voltage_mv",
+      "voltage_lsb_mv": 3.90625,
+      "description": "The voltage from which and below, ITD effect is relevant. The fuse is in U9.1.8 volts"
+    },
+    "fw_fuses_gt_itd_cutoff_v2": {
+      "type": "itd_voltage",
+      "label": "ITD Gt Itd Cutoff V2",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_gt_itd_cutoff_v2",
+      "encoding": "voltage_mv",
+      "voltage_lsb_mv": 3.90625,
+      "description": "The voltage from which and below, ITD effect is relevant. The fuse is in U9.1.8 volts"
+    },
+    "fw_fuses_gt_itd_floor_v": {
+      "type": "itd_voltage",
+      "label": "ITD Gt Itd Floor V",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_gt_itd_floor_v",
+      "encoding": "voltage_mv",
+      "voltage_lsb_mv": 3.90625,
+      "description": "ITD correction for voltages below FLOOR_V will be the same as for FLOOR_V. See RPL HSD 1309935722"
+    },
+    "fw_fuses_ring_itd_cutoff_v": {
+      "type": "itd_voltage",
+      "label": "ITD Ring Itd Cutoff V",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ring_itd_cutoff_v",
+      "encoding": "voltage_mv",
+      "voltage_lsb_mv": 3.90625,
+      "description": "The voltage from which and below, ITD effect is relevant. The fuse is in U9.1.8 volts"
+    },
+    "fw_fuses_ring_itd_cutoff_v2": {
+      "type": "itd_voltage",
+      "label": "ITD Ring Itd Cutoff V2",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ring_itd_cutoff_v2",
+      "encoding": "voltage_mv",
+      "voltage_lsb_mv": 3.90625,
+      "description": "The voltage from which and below, ITD effect is relevant. The fuse is in U9.1.8 volts"
+    },
+    "fw_fuses_ring_itd_floor_v": {
+      "type": "itd_voltage",
+      "label": "ITD Ring Itd Floor V",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ring_itd_floor_v",
+      "encoding": "voltage_mv",
+      "voltage_lsb_mv": 3.90625,
+      "description": "ITD correction for voltages below FLOOR_V will be the same as for FLOOR_V. See RPL HSD 1309935722"
+    },
+    "fw_fuses_sa_itd_cutoff_v": {
+      "type": "itd_voltage",
+      "label": "ITD Sa Itd Cutoff V",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_sa_itd_cutoff_v",
+      "encoding": "voltage_mv",
+      "voltage_lsb_mv": 3.90625,
+      "description": "The voltage from which and below, ITD effect is relevant. The fuse is in U9.1.8 volts"
+    },
+    "fw_fuses_sa_itd_cutoff_v2": {
+      "type": "itd_voltage",
+      "label": "ITD Sa Itd Cutoff V2",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_sa_itd_cutoff_v2",
+      "encoding": "voltage_mv",
+      "voltage_lsb_mv": 3.90625,
+      "description": "The voltage from which and below, ITD effect is relevant. The fuse is in U9.1.8 volts"
+    },
+    "fw_fuses_sa_itd_floor_v": {
+      "type": "itd_voltage",
+      "label": "ITD Sa Itd Floor V",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_sa_itd_floor_v",
+      "encoding": "voltage_mv",
+      "voltage_lsb_mv": 3.90625,
+      "description": "ITD correction for voltages below FLOOR_V will be the same as for FLOOR_V. See RPL HSD 1309935722"
+    },
+    "fw_fuses_cluster0_atom_itd_slope": {
+      "type": "itd_slope",
+      "label": "ITD Cluster0 Atom Itd Slope",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster0_atom_itd_slope",
+      "encoding": "divisor_2n",
+      "voltage_lsb_mv": 3.90625,
+      "description": "This parameter is used to adjust the slope for correcting the voltage ITD controlled domain at low temperatures\n            The final 1/'C slope correction is proportional to the deltaV from the CUTOFF_V and deltaT from the CUTOFF_TJ."
+    },
+    "fw_fuses_cluster0_atom_itd_slope2": {
+      "type": "itd_slope",
+      "label": "ITD Cluster0 Atom Itd Slope2",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster0_atom_itd_slope2",
+      "encoding": "divisor_2n",
+      "voltage_lsb_mv": 3.90625,
+      "description": "This parameter is used to adjust the slope for correcting the voltage ITD controlled domain at low temperatures\n            The final 1/'C slope correction is proportional to the deltaV from the CUTOFF_V and deltaT from the CUTOFF_TJ."
+    },
+    "fw_fuses_cluster0_bigcore_itd_slope": {
+      "type": "itd_slope",
+      "label": "ITD Cluster0 Bigcore Itd Slope",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster0_bigcore_itd_slope",
+      "encoding": "divisor_2n",
+      "voltage_lsb_mv": 3.90625,
+      "description": "This parameter is used to adjust the slope for correcting the voltage ITD controlled domain at low temperatures\n            The final 1/'C slope correction is proportional to the deltaV from the CUTOFF_V and deltaT from the CUTOFF_TJ."
+    },
+    "fw_fuses_cluster0_bigcore_itd_slope2": {
+      "type": "itd_slope",
+      "label": "ITD Cluster0 Bigcore Itd Slope2",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster0_bigcore_itd_slope2",
+      "encoding": "divisor_2n",
+      "voltage_lsb_mv": 3.90625,
+      "description": "This parameter is used to adjust the slope for correcting the voltage ITD controlled domain at low temperatures\n            The final 1/'C slope correction is proportional to the deltaV from the CUTOFF_V and deltaT from the CUTOFF_TJ."
+    },
+    "fw_fuses_cluster1_atom_itd_slope": {
+      "type": "itd_slope",
+      "label": "ITD Cluster1 Atom Itd Slope",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster1_atom_itd_slope",
+      "encoding": "divisor_2n",
+      "voltage_lsb_mv": 3.90625,
+      "description": "This parameter is used to adjust the slope for correcting the voltage ITD controlled domain at low temperatures\n            The final 1/'C slope correction is proportional to the deltaV from the CUTOFF_V and deltaT from the CUTOFF_TJ."
+    },
+    "fw_fuses_cluster1_atom_itd_slope2": {
+      "type": "itd_slope",
+      "label": "ITD Cluster1 Atom Itd Slope2",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster1_atom_itd_slope2",
+      "encoding": "divisor_2n",
+      "voltage_lsb_mv": 3.90625,
+      "description": "This parameter is used to adjust the slope for correcting the voltage ITD controlled domain at low temperatures\n            The final 1/'C slope correction is proportional to the deltaV from the CUTOFF_V and deltaT from the CUTOFF_TJ."
+    },
+    "fw_fuses_gt_itd_slope": {
+      "type": "itd_slope",
+      "label": "ITD Gt Itd Slope",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_gt_itd_slope",
+      "encoding": "divisor_2n",
+      "voltage_lsb_mv": 3.90625,
+      "description": "This parameter is used to adjust the slope for correcting the voltage ITD controlled domain at low temperatures\n            The final 1/'C slope correction is proportional to the deltaV from the CUTOFF_V and deltaT from the CUTOFF_TJ."
+    },
+    "fw_fuses_gt_itd_slope2": {
+      "type": "itd_slope",
+      "label": "ITD Gt Itd Slope2",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_gt_itd_slope2",
+      "encoding": "divisor_2n",
+      "voltage_lsb_mv": 3.90625,
+      "description": "This parameter is used to adjust the slope for correcting the voltage ITD controlled domain at low temperatures\n            The final 1/'C slope correction is proportional to the deltaV from the CUTOFF_V and deltaT from the CUTOFF_TJ."
+    },
+    "fw_fuses_ring_itd_slope": {
+      "type": "itd_slope",
+      "label": "ITD Ring Itd Slope",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ring_itd_slope",
+      "encoding": "divisor_2n",
+      "voltage_lsb_mv": 3.90625,
+      "description": "This parameter is used to adjust the slope for correcting the voltage ITD controlled domain at low temperatures\n            The final 1/'C slope correction is proportional to the deltaV from the CUTOFF_V and deltaT from the CUTOFF_TJ."
+    },
+    "fw_fuses_ring_itd_slope2": {
+      "type": "itd_slope",
+      "label": "ITD Ring Itd Slope2",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ring_itd_slope2",
+      "encoding": "divisor_2n",
+      "voltage_lsb_mv": 3.90625,
+      "description": "This parameter is used to adjust the slope for correcting the voltage ITD controlled domain at low temperatures\n            The final 1/'C slope correction is proportional to the deltaV from the CUTOFF_V and deltaT from the CUTOFF_TJ."
+    },
+    "fw_fuses_sa_itd_slope": {
+      "type": "itd_slope",
+      "label": "ITD Sa Itd Slope",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_sa_itd_slope",
+      "encoding": "divisor_2n",
+      "voltage_lsb_mv": 3.90625,
+      "description": "This parameter is used to adjust the slope for correcting the voltage ITD controlled domain at low temperatures\n            The final 1/'C slope correction is proportional to the deltaV from the CUTOFF_V and deltaT from the CUTOFF_TJ."
+    },
+    "fw_fuses_sa_itd_slope2": {
+      "type": "itd_slope",
+      "label": "ITD Sa Itd Slope2",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_sa_itd_slope2",
+      "encoding": "divisor_2n",
+      "voltage_lsb_mv": 3.90625,
+      "description": "This parameter is used to adjust the slope for correcting the voltage ITD controlled domain at low temperatures\n            The final 1/'C slope correction is proportional to the deltaV from the CUTOFF_V and deltaT from the CUTOFF_TJ."
+    },
+    "fw_fuses_cluster0_ccp_0_ia_p0_ratio_downbin": {
+      "type": "downbin",
+      "label": "Downbin Cluster0 Ccp 0 Ia P0 Ratio Downbin",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster0_ccp_0_ia_p0_ratio_downbin",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "Determines max ratio for this core by subtracting this value from IA_P0_RATIO.\n                This is part of Favored Core Turbo (FCT) feature.\n                As this is Turbo feature, the result P0 (IA_P0_RATIO - this fuse) must still be at least "
+    },
+    "fw_fuses_cluster0_ccp_1_ia_p0_ratio_downbin": {
+      "type": "downbin",
+      "label": "Downbin Cluster0 Ccp 1 Ia P0 Ratio Downbin",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster0_ccp_1_ia_p0_ratio_downbin",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "Determines max ratio for this core by subtracting this value from IA_P0_RATIO.\n                This is part of Favored Core Turbo (FCT) feature.\n                As this is Turbo feature, the result P0 (IA_P0_RATIO - this fuse) must still be at least "
+    },
+    "fw_fuses_cluster0_ccp_2_ia_p0_ratio_downbin": {
+      "type": "downbin",
+      "label": "Downbin Cluster0 Ccp 2 Ia P0 Ratio Downbin",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster0_ccp_2_ia_p0_ratio_downbin",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "Determines max ratio for this core by subtracting this value from IA_P0_RATIO.\n                This is part of Favored Core Turbo (FCT) feature.\n                As this is Turbo feature, the result P0 (IA_P0_RATIO - this fuse) must still be at least "
+    },
+    "fw_fuses_cluster0_ccp_3_ia_p0_ratio_downbin": {
+      "type": "downbin",
+      "label": "Downbin Cluster0 Ccp 3 Ia P0 Ratio Downbin",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster0_ccp_3_ia_p0_ratio_downbin",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "Determines max ratio for this core by subtracting this value from IA_P0_RATIO.\n                This is part of Favored Core Turbo (FCT) feature.\n                As this is Turbo feature, the result P0 (IA_P0_RATIO - this fuse) must still be at least "
+    },
+    "fw_fuses_cluster0_ccp_4_ia_p0_ratio_downbin": {
+      "type": "downbin",
+      "label": "Downbin Cluster0 Ccp 4 Ia P0 Ratio Downbin",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster0_ccp_4_ia_p0_ratio_downbin",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "Determines max ratio for this core by subtracting this value from IA_P0_RATIO.\n                This is part of Favored Core Turbo (FCT) feature.\n                As this is Turbo feature, the result P0 (IA_P0_RATIO - this fuse) must still be at least "
+    },
+    "fw_fuses_cluster0_ccp_5_ia_p0_ratio_downbin": {
+      "type": "downbin",
+      "label": "Downbin Cluster0 Ccp 5 Ia P0 Ratio Downbin",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster0_ccp_5_ia_p0_ratio_downbin",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "Determines max ratio for this core by subtracting this value from IA_P0_RATIO.\n                This is part of Favored Core Turbo (FCT) feature.\n                As this is Turbo feature, the result P0 (IA_P0_RATIO - this fuse) must still be at least "
+    },
+    "fw_fuses_cluster1_ccp_ia_p0_ratio_downbin": {
+      "type": "downbin",
+      "label": "Downbin Cluster1 Ccp Ia P0 Ratio Downbin",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_cluster1_ccp_ia_p0_ratio_downbin",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "Determines max ratio for this core by subtracting this value from IA_P0_RATIO.\n                This is part of Favored Core Turbo (FCT) feature.\n                As this is Turbo feature, the result P0 (IA_P0_RATIO - this fuse) must still be at least "
+    },
+    "fw_fuses_ia_p0_ratio_1_atom_delta": {
+      "type": "atom_delta",
+      "label": "Atom Delta Ia P0 Ratio 1 Atom Delta",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ia_p0_ratio_1_atom_delta",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "lower Atom Core frequency of the 1st ATOM_CORENUM group. core frequency=P(0) frequency - 1_atom_delta"
+    },
+    "fw_fuses_ia_p0_ratio_2_atom_delta": {
+      "type": "atom_delta",
+      "label": "Atom Delta Ia P0 Ratio 2 Atom Delta",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ia_p0_ratio_2_atom_delta",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "lower Atom Core frequency of the 2nd ATOM_CORENUM group. core frequency=P(0) frequency - 1_atom_delta - 2_atom_delta"
+    },
+    "fw_fuses_ia_p0_ratio_3_atom_delta": {
+      "type": "atom_delta",
+      "label": "Atom Delta Ia P0 Ratio 3 Atom Delta",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ia_p0_ratio_3_atom_delta",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "lower Atom Core frequency of the 3rd ATOM_CORENUM group. core frequency=P(0) frequency - 1_atom_delta - ... - 3_atom_delta"
+    },
+    "fw_fuses_ia_p0_ratio_4_atom_delta": {
+      "type": "atom_delta",
+      "label": "Atom Delta Ia P0 Ratio 4 Atom Delta",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ia_p0_ratio_4_atom_delta",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "lower Atom Core frequency of the 4th ATOM_CORENUM group. core frequency=P(0) frequency - 1_atom_delta - ... - 4_atom_delta"
+    },
+    "fw_fuses_ia_p0_ratio_5_atom_delta": {
+      "type": "atom_delta",
+      "label": "Atom Delta Ia P0 Ratio 5 Atom Delta",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ia_p0_ratio_5_atom_delta",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "lower Atom Core frequency of the 5th ATOM_CORENUM group. core frequency=P(0) frequency - 1_atom_delta - ... - 5_atom_delta"
+    },
+    "fw_fuses_ia_p0_ratio_6_atom_delta": {
+      "type": "atom_delta",
+      "label": "Atom Delta Ia P0 Ratio 6 Atom Delta",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ia_p0_ratio_6_atom_delta",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "lower Atom Core frequency of the 6th ATOM_CORENUM group. core frequency=P(0) frequency - 1_atom_delta - ... - 6_atom_delta"
+    },
+    "fw_fuses_ia_p0_ratio_7_atom_delta": {
+      "type": "atom_delta",
+      "label": "Atom Delta Ia P0 Ratio 7 Atom Delta",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ia_p0_ratio_7_atom_delta",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "lower Atom Core frequency of the 7th ATOM_CORENUM group. core frequency=P(0) frequency - 1_atom_delta - ... - 7_atom_delta"
+    },
+    "fw_fuses_ia_p0_ratio_8_atom_delta": {
+      "type": "atom_delta",
+      "label": "Atom Delta Ia P0 Ratio 8 Atom Delta",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ia_p0_ratio_8_atom_delta",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "lower Atom Core frequency of the 8th ATOM_CORENUM group. core frequency=P(0) frequency - 1_atom_delta - ... - 8_atom_delta"
+    },
+    "fw_fuses_ia_p0_ratio_2_bigcore_delta": {
+      "type": "mct_delta",
+      "label": "MCT Ia P0 Ratio 2 Bigcore Delta",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ia_p0_ratio_2_bigcore_delta",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "lower Big IA frequency due to 2 active Big IA cores. core frequency=P(0) frequency - 2_bigcore_delta"
+    },
+    "fw_fuses_ia_p0_ratio_3_bigcore_delta": {
+      "type": "mct_delta",
+      "label": "MCT Ia P0 Ratio 3 Bigcore Delta",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ia_p0_ratio_3_bigcore_delta",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "lower Big IA frequency due to 3 active Big IA cores. core frequency=P(0) frequency - 2_bigcore_delta - 3_bigcore_delta"
+    },
+    "fw_fuses_ia_p0_ratio_4_bigcore_delta": {
+      "type": "mct_delta",
+      "label": "MCT Ia P0 Ratio 4 Bigcore Delta",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ia_p0_ratio_4_bigcore_delta",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "lower Big IA frequency due to 4 active Big IA cores. core frequency=P(0) frequency - 2_bigcore_delta - ... - 4_bigcore_delta"
+    },
+    "fw_fuses_ia_p0_ratio_5_bigcore_delta": {
+      "type": "mct_delta",
+      "label": "MCT Ia P0 Ratio 5 Bigcore Delta",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ia_p0_ratio_5_bigcore_delta",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "lower Big IA frequency due to 5 active Big IA cores. core frequency=P(0) frequency - 2_bigcore_delta - ...- 5_bigcore_delta"
+    },
+    "fw_fuses_ia_p0_ratio_6_bigcore_delta": {
+      "type": "mct_delta",
+      "label": "MCT Ia P0 Ratio 6 Bigcore Delta",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ia_p0_ratio_6_bigcore_delta",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "lower Big IA frequency due to 6 active Big IA cores. core frequency=P(0) frequency - 2_bigcore_delta - ...- 6_bigcore_delta"
+    },
+    "fw_fuses_ia_p0_ratio_7_bigcore_delta": {
+      "type": "mct_delta",
+      "label": "MCT Ia P0 Ratio 7 Bigcore Delta",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ia_p0_ratio_7_bigcore_delta",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "lower Big IA frequency due to 7 active Big IA cores. core frequency=P(0) frequency - 2_bigcore_delta - ...- 7_bigcore_delta"
+    },
+    "fw_fuses_ia_p0_ratio_8_bigcore_delta": {
+      "type": "mct_delta",
+      "label": "MCT Ia P0 Ratio 8 Bigcore Delta",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ia_p0_ratio_8_bigcore_delta",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "lower Big IA frequency due to 8 active Big IA cores. core frequency=P(0) frequency - 2_bigcore_delta - ...- 8_bigcore_delta"
+    },
+    "fw_fuses_ia_p0_ratio_avx256_delta": {
+      "type": "p0_override",
+      "label": "P0 Ia P0 Ratio Avx256 Delta",
+      "fuse_path": "cdie.fuses.punit_fuses",
+      "register": "fw_fuses_ia_p0_ratio_avx256_delta",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "Amount to lower P0 when running AVX256 instructions.\n                         That is, any core that runs AVX-256 will not run faster than: IA_P0_RATIO - IA_P0_RATIO_AVX256_DELTA.\n                         Setting this fuse will force the lower freque"
+    },
+    "core_fuse_core_fuse_acode_core_ia_p0_ratio": {
+      "type": "p0_override",
+      "label": "P0 Core Ia P0 Ratio",
+      "fuse_path": "cdie.fuses.core0_fuse",
+      "register": "core_fuse_core_fuse_acode_core_ia_p0_ratio",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "Max turbo point in 100 MHz- MAX_TURBO_RATIO (P0)\n              Units are: Uint"
+    },
+    "core_fuse_core_fuse_acode_core_ia_p0_ratio_avx256": {
+      "type": "p0_override",
+      "label": "P0 Core Ia P0 Ratio Avx256",
+      "fuse_path": "cdie.fuses.core0_fuse",
+      "register": "core_fuse_core_fuse_acode_core_ia_p0_ratio_avx256",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "P0 when running AVX256 instructions. This is an absolute ration, not delta.\n              That is, any core that runs AVX-256 will not run faster.\n              Setting this fuse will force the frequency even if there is no IccMax or power limitation"
+    },
+    "core_fuse_core_fuse_acode_core_ia_p0_ratio_avx512": {
+      "type": "p0_override",
+      "label": "P0 Core Ia P0 Ratio Avx512",
+      "fuse_path": "cdie.fuses.core0_fuse",
+      "register": "core_fuse_core_fuse_acode_core_ia_p0_ratio_avx512",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "P0 when running AVX512 instructions. This is an absolute ration, not delta.\n              That is, any core that runs AVX-512 will not run faster.\n              Setting this fuse will force the frequency even if there is no IccMax or power limitation"
+    },
+    "core_fuse_core_fuse_acode_core_ia_p0_ratio_tmul": {
+      "type": "p0_override",
+      "label": "P0 Core Ia P0 Ratio Tmul",
+      "fuse_path": "cdie.fuses.core0_fuse",
+      "register": "core_fuse_core_fuse_acode_core_ia_p0_ratio_tmul",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "P0 when running TMUL instructions. This is an absolute ration, not delta.\n              That is, any core that runs TMUL will not run faster.\n              Setting this fuse will force the frequency even if there is no IccMax or power limitations, so"
+    },
+    "core_fuse_core_fuse_acode_ia_itd_cutoff_v": {
+      "type": "itd_voltage",
+      "label": "ITD Ia Itd Cutoff V",
+      "fuse_path": "cdie.fuses.core0_fuse",
+      "register": "core_fuse_core_fuse_acode_ia_itd_cutoff_v",
+      "encoding": "voltage_mv",
+      "voltage_lsb_mv": 3.90625,
+      "description": "The voltage from which and below, ITD effect is relevant."
+    },
+    "core_fuse_core_fuse_acode_ia_itd_cutoff_v2": {
+      "type": "itd_voltage",
+      "label": "ITD Ia Itd Cutoff V2",
+      "fuse_path": "cdie.fuses.core0_fuse",
+      "register": "core_fuse_core_fuse_acode_ia_itd_cutoff_v2",
+      "encoding": "voltage_mv",
+      "voltage_lsb_mv": 3.90625,
+      "description": "Second voltage cutoff for new ITD algorithm (new from CFL/ICL). characterizing in U3.13 format"
+    },
+    "core_fuse_core_fuse_acode_ia_itd_slope": {
+      "type": "itd_slope",
+      "label": "ITD Ia Itd Slope",
+      "fuse_path": "cdie.fuses.core0_fuse",
+      "register": "core_fuse_core_fuse_acode_ia_itd_slope",
+      "encoding": "divisor_2n",
+      "voltage_lsb_mv": 3.90625,
+      "description": "This parameter is used to adjust the slope for correcting the voltage ITD controlled domain at low temperatures\n              The final 1/'C slope correction is proportional to the deltaV from the CUTOFF_V and deltaT from the CUTOFF_TJ.\n             "
+    },
+    "core_fuse_core_fuse_acode_ia_itd_slope2": {
+      "type": "itd_slope",
+      "label": "ITD Ia Itd Slope2",
+      "fuse_path": "cdie.fuses.core0_fuse",
+      "register": "core_fuse_core_fuse_acode_ia_itd_slope2",
+      "encoding": "divisor_2n",
+      "voltage_lsb_mv": 3.90625,
+      "description": "Second slope for new ITD algorithm (new from CFL/ICL)"
+    },
+    "core_fuse_core_fuse_acode_ia_min_ratio": {
+      "type": "acode_min",
+      "label": "Ia Min Ratio",
+      "fuse_path": "cdie.fuses.core0_fuse",
+      "register": "core_fuse_core_fuse_acode_ia_min_ratio",
+      "encoding": "ratio_mhz",
+      "freq_multiplier": 100.0,
+      "description": "Minimum ratio for IA domain in 100Mhz. Normal values are 4, 5, 6, 7, or 8. 6bits as used for enforce fixed freq by DFx flows\n              Units are: Uint"
+    }
+  }
+}

@@ -1,0 +1,113 @@
+"""
+startup_discovery.py — Autonomous discovery bridge
+====================================================
+
+Called by vf_curve_manager.py (GUI) and vf_curve_manager_cli.py (CLI)
+immediately after ITP is initialised and BEFORE vf_domains.json is loaded.
+
+Logic:
+  • If vf_domains.json has ≥1 domain  →  skip (already populated).
+  • If vf_domains.json is empty/missing  →  run full discovery pipeline.
+  • If force=True (--rediscover flag)    →  always run, even if populated.
+
+After discovery the tool continues to start normally; vf_domains.json has
+been freshly written so ConfigLoader picks up all discovered domains.
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+import os
+import traceback
+
+log = logging.getLogger(__name__)
+
+_SRC_DIR = os.path.dirname(os.path.dirname(__file__))
+
+
+def _get_cached_platform() -> str:
+    """Return the platform name stored in vf_discovery_cache.json, or '' if unavailable."""
+    try:
+        cache_path = os.path.join(_SRC_DIR, 'vf_discovery_cache.json')
+        if os.path.exists(cache_path):
+            with open(cache_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            return data.get('platform', '').lower()
+    except Exception:
+        pass
+    return ''
+
+
+def _get_domains_platform() -> str:
+    """Return the platform name stamped inside vf_domains.json (_platform key).
+
+    This is the authoritative source — written by auto_merge_to_vf_domains()
+    every time the domains file is regenerated.  Returns '' if the file is
+    missing, unpopulated, or was written before the stamp was introduced.
+    """
+    try:
+        domains_path = os.path.join(_SRC_DIR, 'vf_domains.json')
+        if os.path.exists(domains_path):
+            with open(domains_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            return data.get('_platform', '').lower()
+    except Exception:
+        pass
+    return ''
+
+
+def maybe_run_discovery(force: bool = False) -> bool:
+    """Run VF register discovery if vf_domains.json is unpopulated (or forced).
+
+    Platform cross-check (two sources, most to least authoritative):
+      1. vf_domains.json  _platform  key  — stamped on every merge write.
+      2. vf_discovery_cache.json platform — fallback when stamp is absent
+         (tool version before stamp was introduced).
+
+    If either recorded platform differs from the hardware detected via ITP,
+    re-discovery is forced immediately — before filter_unreachable_domains()
+    wastes time probing every domain one-by-one.
+
+    Args:
+        force: When True, discovery runs unconditionally (--rediscover mode).
+               When False (default), discovery is skipped if vf_domains.json
+               already contains at least one domain AND the platform matches.
+
+    Returns:
+        True  — discovery pipeline ran (vf_domains.json was updated).
+        False — skipped or pipeline raised an error.
+    """
+    if not force:
+        try:
+            from .auto_discover_vf_registers import detect_platform_name
+            current = detect_platform_name().lower()
+
+            # Primary check: vf_domains.json _platform stamp
+            domains_plat = _get_domains_platform()
+            if domains_plat and current and domains_plat != current:
+                log.warning("vf_domains.json was built for '%s' but connected platform is '%s' "
+                            "— forcing re-discovery", domains_plat, current)
+                force = True
+
+            # Fallback check: discovery cache platform
+            if not force:
+                cached = _get_cached_platform()
+                if cached and current and cached != current:
+                    log.warning("Discovery cache platform '%s' != connected platform '%s' "
+                                "— forcing re-discovery", cached, current)
+                    force = True
+
+        except Exception as _pf_ex:
+            log.debug("Platform cross-check skipped: %s", _pf_ex)
+
+    try:
+        from .auto_discover_vf_registers import run_discovery_pipeline
+        return run_discovery_pipeline(force=force)
+    except ImportError as exc:
+        log.error("Discovery module not available: %s — continuing with existing vf_domains.json", exc)
+        return False
+    except Exception as exc:
+        log.error("Discovery pipeline error: %s — continuing with existing vf_domains.json", exc)
+        traceback.print_exc()
+        return False

@@ -1,0 +1,977 @@
+{
+  "_comment": "Per-platform configuration for auto_discover_vf_registers.py. Add new platforms here \u2014 no code changes needed.",
+  "_comment_detection": "Detection priority: 1) pysv_config.ini [baseaccess] project= key (most authoritative, written by PythonSV itself), 2) pythonsv_root subdirectory names matched against platform keys, 3) installed Python package names matched against platform keys.",
+  "pythonsv": {
+    "config_file": "C:/pythonsv/pysv_config.ini",
+    "project_root": "C:/pythonsv"
+  },
+  "_comment_known_domains": "All recognized output domain keys used in recommendations and report sections.",
+  "known_domains": [
+    "bigcore",
+    "atom",
+    "ring",
+    "gt",
+    "media",
+    "sa",
+    "sa_qclk",
+    "de",
+    "nclk",
+    "vpu",
+    "gnoc",
+    "ipu_ps",
+    "ipu_is",
+    "io"
+  ],
+  "_comment_spec_hints": "spec_conversion_hints: spec-authoritative freq multipliers sourced from Intel HAS/MAS via Co-Design. Keyed by subdomain key (prefix before _vf_ in register names). Priority at runtime: spec_hints > desc_regex > keyword_heuristic. voltage_lsb_mv is universal across all Intel VF platforms (U1.8 = 3.90625 mV/LSB) so it is NOT repeated here unless a platform deviates.",
+  "platforms": {
+    "wildcatlake": {
+      "display_name": "WildcatLake (WCL)",
+      "fuse_root": "cdie.fuses",
+      "core_fuse_pattern": "core{n}_fuse",
+      "system_fuse_names": [
+        "punit_fuses"
+      ],
+      "extra_fuse_names": [
+        "cpu0_fuse",
+        "cpu1_fuse",
+        "cpu2_fuse",
+        "cpu3_fuse"
+      ],
+      "bigcore_fuse_override": "core_fuse",
+      "domain_patterns": {
+        "bigcore": [
+          "cougarcove",
+          "_ia_core",
+          "_ia_vf",
+          "_ia_base_vf",
+          "_ia_p0_",
+          "_ia_p1_",
+          "_ia_pn_",
+          "_ia_min_ratio",
+          "_ia_max_ratio",
+          "_ia_reference",
+          "_ia_itd",
+          "_ia_leak",
+          "_ia_num_of",
+          "_ia_delta_vf",
+          "cluster0_bigcore",
+          "fw_fuses_ia_",
+          "cluster0_ccp_",
+          "fw_fuses_config_tdp_ratio"
+        ],
+        "atom": [
+          "darkmont",
+          "cpu0_fuse",
+          "cpu1_fuse",
+          "cpu2_fuse",
+          "cpu3_fuse",
+          "atom_fuse",
+          "atom_ia",
+          "atom_vf",
+          "lmt_vf",
+          "atom_num_of",
+          "cluster1_atom",
+          "cluster0_atom",
+          "fw_fuses_atom_",
+          "cluster1_ccp"
+        ],
+        "ring": [
+          "ring_vf",
+          "_ring_",
+          "ring_fuse",
+          "llc",
+          "cbo"
+        ],
+        "gt": [
+          "_gt_vf",
+          "_gt_fuse",
+          "_gt_",
+          "graphics",
+          "gpu"
+        ],
+        "media": [
+          "media_vf",
+          "media_fuse",
+          "vebox",
+          "_vd_fuse",
+          "fw_fuses_media",
+          "fw_fuses_vpu_"
+        ],
+        "sa": [
+          "system_agent",
+          "uncore_sa",
+          "sa_fuse",
+          "sa_vf",
+          "fw_fuses_sa_",
+          "fw_fuses_de_",
+          "fw_fuses_nclk_",
+          "fw_fuses_qclk_",
+          "fw_fuses_config_tdp_power",
+          "fw_fuses_tdp_power",
+          "fw_fuses_reference_temp",
+          "fw_fuses_itd_cutoff",
+          "dlvr_",
+          "fw_fuses_itd_voltage_slope_above_cutoff_tj",
+          "fw_fuses_min_temperature",
+          "fw_fuses_thermal_throttle_unlock",
+          "fw_fuses_tj_max",
+          "dts0_aon_fuse_fasttmode_dtstemperature_max_location_ovrval",
+          "dts0_aon_fuse_fasttmode_dtstemperature_max_ovrval",
+          "dts0_aon_fuse_fasttmode_dtstemperature_max_valid_ovrval",
+          "dts0_aon_fuse_fasttmode_dtstemperature_min_location_ovrval",
+          "dts0_aon_fuse_fasttmode_dtstemperature_min_ovrval",
+          "dts0_aon_fuse_fasttmode_dtstemperature_min_valid_ovrval",
+          "dts1_fuse_fasttmode_dtstemperature_max_location_ovrval",
+          "dts1_fuse_fasttmode_dtstemperature_max_ovrval",
+          "dts1_fuse_fasttmode_dtstemperature_max_valid_ovrval",
+          "dts1_fuse_fasttmode_dtstemperature_min_location_ovrval",
+          "dts1_fuse_fasttmode_dtstemperature_min_ovrval",
+          "dts1_fuse_fasttmode_dtstemperature_min_valid_ovrval",
+          "dts2_fuse_fasttmode_dtstemperature_max_location_ovrval",
+          "dts2_fuse_fasttmode_dtstemperature_max_ovrval",
+          "dts2_fuse_fasttmode_dtstemperature_max_valid_ovrval",
+          "dts2_fuse_fasttmode_dtstemperature_min_location_ovrval",
+          "dts2_fuse_fasttmode_dtstemperature_min_ovrval",
+          "dts2_fuse_fasttmode_dtstemperature_min_valid_ovrval",
+          "dts3_fuse_fasttmode_dtstemperature_max_location_ovrval",
+          "dts3_fuse_fasttmode_dtstemperature_max_ovrval",
+          "dts3_fuse_fasttmode_dtstemperature_max_valid_ovrval",
+          "dts3_fuse_fasttmode_dtstemperature_min_location_ovrval",
+          "dts3_fuse_fasttmode_dtstemperature_min_ovrval",
+          "dts3_fuse_fasttmode_dtstemperature_min_valid_ovrval",
+          "dts_fuse_fasttmode_dtstemperature_max_location_ovrval",
+          "dts_fuse_fasttmode_dtstemperature_max_ovrval",
+          "dts_fuse_fasttmode_dtstemperature_max_valid_ovrval",
+          "dts_fuse_fasttmode_dtstemperature_min_location_ovrval",
+          "dts_fuse_fasttmode_dtstemperature_min_ovrval",
+          "dts_fuse_fasttmode_dtstemperature_min_valid_ovrval",
+          "dts_gt0_fuse_fasttmode_dtstemperature_max_location_ovrval",
+          "dts_gt0_fuse_fasttmode_dtstemperature_max_ovrval",
+          "dts_gt0_fuse_fasttmode_dtstemperature_max_valid_ovrval",
+          "dts_gt0_fuse_fasttmode_dtstemperature_min_location_ovrval",
+          "dts_gt0_fuse_fasttmode_dtstemperature_min_ovrval",
+          "dts_gt0_fuse_fasttmode_dtstemperature_min_valid_ovrval",
+          "itd_low_tj",
+          "silicon_process_leakage_indication_3"
+        ],
+        "io": [
+          "pcie",
+          "io_fuse",
+          "_io_vf",
+          "io_vf"
+        ]
+      },
+      "desc_hints": {
+        "bigcore": [
+          "cougarcove",
+          "performance core",
+          "p-core",
+          "big core"
+        ],
+        "atom": [
+          "darkmont",
+          "efficiency core",
+          "e-core",
+          "atom core"
+        ],
+        "ring": [
+          "ring bus",
+          "last level cache",
+          "ring domain"
+        ],
+        "gt": [
+          "graphics domain",
+          "gpu domain",
+          "graphics tile"
+        ],
+        "sa": [
+          "system agent",
+          "uncore voltage"
+        ],
+        "io": [
+          "pcie domain",
+          "io domain"
+        ]
+      },
+      "spec_conversion_hints": {
+        "_comment": "WCL confirmed: bigcore/atom/ring=100MHz, gt_acm_vpg=50MHz, media=50MHz, nclk=50MHz, vpu=50MHz, sa_qclk=33.33MHz, de=24MHz (Intel HAS via Co-Design)",
+        "cluster0_bigcore":   { "freq_multiplier": 100.0  },
+        "cluster1_bigcore":   { "freq_multiplier": 100.0  },
+        "cluster0_atom":      { "freq_multiplier": 100.0  },
+        "cluster1_atom":      { "freq_multiplier": 100.0  },
+        "ring":               { "freq_multiplier": 100.0  },
+        "gt_acm_vpg":         { "freq_multiplier":  50.0  },
+        "gt":                 { "freq_multiplier":  50.0  },
+        "media":              { "freq_multiplier":  50.0  },
+        "nclk":               { "freq_multiplier":  50.0  },
+        "vpu":                { "freq_multiplier":  50.0  },
+        "sa_qclk":            { "freq_multiplier":  33.33 },
+        "de":                 { "freq_multiplier":  24.0  }
+      }
+    },
+    "novalake": {
+      "display_name": "Nova Lake (NVL)",
+      "fuse_root": "cdie.fuses",
+      "core_fuse_pattern": "core{n}_fuse",
+      "system_fuse_names": [
+        "punit_fuses"
+      ],
+      "extra_fuse_names": [],
+      "bigcore_fuse_override": "core_fuse",
+      "domain_patterns": {
+        "bigcore": [
+          "_ia_core",
+          "_ia_vf",
+          "_ia_base_vf",
+          "_ia_p0_",
+          "_ia_p1_",
+          "_ia_min_ratio",
+          "_ia_reference",
+          "_ia_itd",
+          "_ia_leak",
+          "_ia_num_of",
+          "_ia_delta_vf",
+          "cluster0_bigcore",
+          "fw_fuses_ia_",
+          "fw_fuses_config_tdp_ratio"
+        ],
+        "atom": [
+          "cpu0_fuse",
+          "cpu1_fuse",
+          "atom_fuse",
+          "atom_vf",
+          "cluster1_atom",
+          "cluster0_atom",
+          "fw_fuses_atom_"
+        ],
+        "gt": [
+          "gt_vf",
+          "gt_vf_ratio",
+          "gt_vf_voltage",
+          "_gt_vf",
+          "_gt_fuse",
+          "graphics",
+          "gpu"
+        ],
+        "media": [
+          "media_vf",
+          "media_fuse",
+          "fw_fuses_media"
+        ],
+        "sa": [
+          "system_agent",
+          "sa_fuse",
+          "sa_vf",
+          "fw_fuses_sa_",
+          "fw_fuses_de_",
+          "fw_fuses_nclk_",
+          "fw_fuses_qclk_",
+          "dlvr_"
+        ],
+        "io": [
+          "pcie",
+          "io_fuse",
+          "_io_vf"
+        ]
+      },
+      "desc_hints": {
+        "bigcore": [
+          "performance core",
+          "p-core",
+          "big core"
+        ],
+        "atom": [
+          "efficiency core",
+          "e-core"
+        ],
+        "gt": [
+          "graphics domain",
+          "gpu domain"
+        ],
+        "sa": [
+          "system agent",
+          "uncore voltage"
+        ]
+      },
+      "spec_conversion_hints": {
+        "_comment": "NVL confirmed: gt=100MHz (NOT 50MHz), de=24MHz, media=50MHz, sa_qclk=33.33MHz (Intel HAS/MAS via Co-Design)",
+        "cluster0_bigcore":   { "freq_multiplier": 100.0  },
+        "cluster1_bigcore":   { "freq_multiplier": 100.0  },
+        "cluster0_atom":      { "freq_multiplier": 100.0  },
+        "cluster1_atom":      { "freq_multiplier": 100.0  },
+        "ring":               { "freq_multiplier": 100.0  },
+        "gt":                 { "freq_multiplier": 100.0  },
+        "media":              { "freq_multiplier":  50.0  },
+        "sa_qclk":            { "freq_multiplier":  33.33 },
+        "de":                 { "freq_multiplier":  24.0  }
+      }
+    },
+    "meteorlake": {
+      "display_name": "MeteorLake (MTL)",
+      "fuse_root": "cdie.fuses",
+      "core_fuse_pattern": "core{n}_fuse",
+      "system_fuse_names": [
+        "punit_fuses"
+      ],
+      "extra_fuse_names": [],
+      "bigcore_fuse_override": "core_fuse",
+      "domain_patterns": {
+        "bigcore": [
+          "redwoodcove",
+          "_ia_core",
+          "_ia_vf",
+          "_ia_base_vf",
+          "_ia_p0_",
+          "_ia_p1_",
+          "_ia_pn_",
+          "_ia_min_ratio",
+          "_ia_max_ratio",
+          "_ia_reference",
+          "_ia_itd",
+          "_ia_leak",
+          "_ia_num_of",
+          "_ia_delta_vf",
+          "cluster0_bigcore",
+          "fw_fuses_ia_",
+          "cluster0_ccp_",
+          "fw_fuses_config_tdp_ratio"
+        ],
+        "atom": [
+          "crestmont",
+          "cpu0_fuse",
+          "cpu1_fuse",
+          "atom_fuse",
+          "atom_ia",
+          "atom_vf",
+          "lmt_vf",
+          "atom_num_of",
+          "cluster1_atom",
+          "cluster0_atom",
+          "fw_fuses_atom_",
+          "cluster1_ccp"
+        ],
+        "ring": [
+          "ring_vf",
+          "_ring_",
+          "ring_fuse",
+          "llc",
+          "cbo"
+        ],
+        "gt": [
+          "_gt_vf",
+          "_gt_fuse",
+          "_gt_",
+          "graphics",
+          "gpu"
+        ],
+        "media": [
+          "media_vf",
+          "media_fuse",
+          "vebox",
+          "_vd_fuse",
+          "fw_fuses_media",
+          "fw_fuses_vpu_"
+        ],
+        "sa": [
+          "system_agent",
+          "uncore_sa",
+          "sa_fuse",
+          "sa_vf",
+          "fw_fuses_sa_",
+          "fw_fuses_de_",
+          "fw_fuses_nclk_",
+          "fw_fuses_qclk_",
+          "fw_fuses_config_tdp_power",
+          "fw_fuses_tdp_power",
+          "fw_fuses_reference_temp",
+          "fw_fuses_itd_cutoff",
+          "dlvr_"
+        ],
+        "io": [
+          "pcie",
+          "io_fuse",
+          "_io_vf",
+          "io_vf"
+        ]
+      },
+      "desc_hints": {
+        "bigcore": [
+          "redwoodcove",
+          "performance core",
+          "p-core"
+        ],
+        "atom": [
+          "crestmont",
+          "efficiency core",
+          "e-core"
+        ],
+        "ring": [
+          "ring bus",
+          "last level cache",
+          "ring domain"
+        ],
+        "gt": [
+          "graphics domain",
+          "gpu domain"
+        ],
+        "sa": [
+          "system agent",
+          "uncore voltage"
+        ],
+        "io": [
+          "pcie domain",
+          "io domain"
+        ]
+      },
+      "spec_conversion_hints": {
+        "_comment": "MTL confirmed: bigcore/atom/ring=100MHz, gt/media/nclk/vpu=50MHz, sa_qclk=33.33MHz, de=24MHz (Intel HAS/MAS via Co-Design)",
+        "cluster0_bigcore":   { "freq_multiplier": 100.0  },
+        "cluster1_bigcore":   { "freq_multiplier": 100.0  },
+        "cluster0_atom":      { "freq_multiplier": 100.0  },
+        "cluster1_atom":      { "freq_multiplier": 100.0  },
+        "ring":               { "freq_multiplier": 100.0  },
+        "gt_acm_vpg":         { "freq_multiplier":  50.0  },
+        "gt":                 { "freq_multiplier":  50.0  },
+        "media":              { "freq_multiplier":  50.0  },
+        "nclk":               { "freq_multiplier":  50.0  },
+        "vpu":                { "freq_multiplier":  50.0  },
+        "sa_qclk":            { "freq_multiplier":  33.33 },
+        "de":                 { "freq_multiplier":  24.0  }
+      }
+    },
+    "lunarlake": {
+      "display_name": "LunarLake (LNL)",
+      "fuse_root": "cdie.fuses",
+      "core_fuse_pattern": "core{n}_fuse",
+      "system_fuse_names": [
+        "punit_fuses"
+      ],
+      "extra_fuse_names": [],
+      "bigcore_fuse_override": "core_fuse",
+      "domain_patterns": {
+        "bigcore": [
+          "lion_cove",
+          "lioncove",
+          "_ia_core",
+          "_ia_vf",
+          "_ia_base_vf",
+          "_ia_p0_",
+          "_ia_p1_",
+          "_ia_min_ratio",
+          "_ia_reference",
+          "_ia_itd",
+          "_ia_leak",
+          "_ia_num_of",
+          "_ia_delta_vf",
+          "cluster0_bigcore",
+          "fw_fuses_ia_",
+          "cluster0_ccp_",
+          "fw_fuses_config_tdp_ratio"
+        ],
+        "atom": [
+          "skymont",
+          "cpu0_fuse",
+          "cpu1_fuse",
+          "atom_fuse",
+          "atom_vf",
+          "lmt_vf",
+          "atom_num_of",
+          "cluster1_atom",
+          "cluster0_atom",
+          "fw_fuses_atom_",
+          "cluster1_ccp"
+        ],
+        "ring": [
+          "ring_vf",
+          "_ring_",
+          "ring_fuse",
+          "llc",
+          "cbo"
+        ],
+        "gt": [
+          "_gt_vf",
+          "_gt_fuse",
+          "_gt_",
+          "graphics",
+          "gpu"
+        ],
+        "media": [
+          "media_vf",
+          "media_fuse",
+          "vebox",
+          "_vd_fuse",
+          "fw_fuses_media",
+          "fw_fuses_vpu_"
+        ],
+        "sa": [
+          "system_agent",
+          "uncore_sa",
+          "sa_fuse",
+          "sa_vf",
+          "fw_fuses_sa_",
+          "fw_fuses_de_",
+          "fw_fuses_nclk_",
+          "fw_fuses_qclk_",
+          "fw_fuses_config_tdp_power",
+          "fw_fuses_tdp_power",
+          "fw_fuses_reference_temp",
+          "fw_fuses_itd_cutoff",
+          "dlvr_"
+        ],
+        "io": [
+          "pcie",
+          "io_fuse",
+          "_io_vf",
+          "io_vf"
+        ]
+      },
+      "desc_hints": {
+        "bigcore": [
+          "lion cove",
+          "lioncove",
+          "performance core",
+          "p-core"
+        ],
+        "atom": [
+          "skymont",
+          "efficiency core",
+          "e-core"
+        ],
+        "ring": [
+          "ring bus",
+          "last level cache",
+          "ring domain"
+        ],
+        "gt": [
+          "graphics domain",
+          "gpu domain"
+        ],
+        "sa": [
+          "system agent",
+          "uncore voltage"
+        ],
+        "io": [
+          "pcie domain",
+          "io domain"
+        ]
+      },
+      "spec_conversion_hints": {
+        "_comment": "LNL confirmed: bigcore/atom/ring=100MHz, gt_acm_vpg/media/gnoc=50MHz, sa_qclk=33.33MHz, de=24MHz, ipu_ps=25MHz, ipu_is=16.666MHz (Intel HAS/MAS via Co-Design)",
+        "cluster0_bigcore":   { "freq_multiplier": 100.0  },
+        "cluster1_bigcore":   { "freq_multiplier": 100.0  },
+        "cluster0_atom":      { "freq_multiplier": 100.0  },
+        "cluster1_atom":      { "freq_multiplier": 100.0  },
+        "ring":               { "freq_multiplier": 100.0  },
+        "gt_acm_vpg":         { "freq_multiplier":  50.0  },
+        "gt":                 { "freq_multiplier":  50.0  },
+        "gnoc":               { "freq_multiplier":  50.0  },
+        "media":              { "freq_multiplier":  50.0  },
+        "nclk":               { "freq_multiplier":  50.0  },
+        "vpu":                { "freq_multiplier":  50.0  },
+        "sa_qclk":            { "freq_multiplier":  33.33 },
+        "de":                 { "freq_multiplier":  24.0  },
+        "ipu_ps":             { "freq_multiplier":  25.0  },
+        "ipu_is":             { "freq_multiplier":  16.666 }
+      }
+    },
+    "arrowlake": {
+      "display_name": "ArrowLake (ARL)",
+      "fuse_root": "cdie.fuses",
+      "core_fuse_pattern": "core{n}_fuse",
+      "system_fuse_names": [
+        "punit_fuses"
+      ],
+      "extra_fuse_names": [],
+      "bigcore_fuse_override": "core_fuse",
+      "domain_patterns": {
+        "bigcore": [
+          "lion_cove",
+          "lioncove",
+          "_ia_core",
+          "_ia_vf",
+          "_ia_base_vf",
+          "_ia_p0_",
+          "_ia_p1_",
+          "_ia_min_ratio",
+          "_ia_reference",
+          "_ia_itd",
+          "_ia_leak",
+          "_ia_num_of",
+          "_ia_delta_vf",
+          "cluster0_bigcore",
+          "fw_fuses_ia_",
+          "cluster0_ccp_",
+          "fw_fuses_config_tdp_ratio"
+        ],
+        "atom": [
+          "crestmont",
+          "skymont",
+          "cpu0_fuse",
+          "atom_fuse",
+          "atom_vf",
+          "lmt_vf",
+          "atom_num_of",
+          "cluster1_atom",
+          "cluster0_atom",
+          "fw_fuses_atom_",
+          "cluster1_ccp"
+        ],
+        "ring": [
+          "ring_vf",
+          "_ring_",
+          "ring_fuse",
+          "llc",
+          "cbo"
+        ],
+        "gt": [
+          "_gt_vf",
+          "_gt_fuse",
+          "_gt_",
+          "graphics",
+          "gpu"
+        ],
+        "media": [
+          "media_vf",
+          "media_fuse",
+          "vebox",
+          "_vd_fuse",
+          "fw_fuses_media",
+          "fw_fuses_vpu_"
+        ],
+        "sa": [
+          "system_agent",
+          "uncore_sa",
+          "sa_fuse",
+          "sa_vf",
+          "fw_fuses_sa_",
+          "fw_fuses_de_",
+          "fw_fuses_nclk_",
+          "fw_fuses_qclk_",
+          "fw_fuses_config_tdp_power",
+          "fw_fuses_tdp_power",
+          "fw_fuses_reference_temp",
+          "fw_fuses_itd_cutoff",
+          "dlvr_"
+        ],
+        "io": [
+          "pcie",
+          "io_fuse",
+          "_io_vf",
+          "io_vf"
+        ]
+      },
+      "desc_hints": {
+        "bigcore": [
+          "lion cove",
+          "performance core",
+          "p-core"
+        ],
+        "atom": [
+          "crestmont",
+          "skymont",
+          "efficiency core",
+          "e-core"
+        ],
+        "ring": [
+          "ring bus",
+          "last level cache",
+          "ring domain"
+        ],
+        "gt": [
+          "graphics domain",
+          "gpu domain"
+        ],
+        "sa": [
+          "system agent",
+          "uncore voltage"
+        ],
+        "io": [
+          "pcie domain",
+          "io domain"
+        ]
+      },
+      "spec_conversion_hints": {
+        "_comment": "ARL confirmed: bigcore/atom/ring=100MHz, gt/media/nclk/vpu=50MHz, sa_qclk=33.33MHz, de=24MHz (Intel HAS/MAS via Co-Design)",
+        "cluster0_bigcore":   { "freq_multiplier": 100.0  },
+        "cluster1_bigcore":   { "freq_multiplier": 100.0  },
+        "cluster0_atom":      { "freq_multiplier": 100.0  },
+        "cluster1_atom":      { "freq_multiplier": 100.0  },
+        "ring":               { "freq_multiplier": 100.0  },
+        "gt_acm_vpg":         { "freq_multiplier":  50.0  },
+        "gt":                 { "freq_multiplier":  50.0  },
+        "media":              { "freq_multiplier":  50.0  },
+        "nclk":               { "freq_multiplier":  50.0  },
+        "vpu":                { "freq_multiplier":  50.0  },
+        "sa_qclk":            { "freq_multiplier":  33.33 },
+        "de":                 { "freq_multiplier":  24.0  }
+      }
+    },
+    "pantherlake": {
+      "display_name": "PantherLake (PTL)",
+      "fuse_root": "cdie.fuses",
+      "core_fuse_pattern": "core{n}_fuse",
+      "system_fuse_names": [
+        "punit_fuses"
+      ],
+      "extra_fuse_names": [],
+      "bigcore_fuse_override": "core_fuse",
+      "domain_patterns": {
+        "bigcore": [
+          "cougar_cove",
+          "cougarcove",
+          "_ia_core",
+          "_ia_vf",
+          "_ia_base_vf",
+          "_ia_p0_",
+          "_ia_p1_",
+          "_ia_min_ratio",
+          "_ia_reference",
+          "_ia_itd",
+          "_ia_leak",
+          "_ia_num_of",
+          "_ia_delta_vf",
+          "cluster0_bigcore",
+          "fw_fuses_ia_",
+          "cluster0_ccp_",
+          "fw_fuses_config_tdp_ratio"
+        ],
+        "atom": [
+          "darkmont",
+          "cpu0_fuse",
+          "atom_fuse",
+          "atom_vf",
+          "lmt_vf",
+          "cluster1_atom",
+          "cluster0_atom",
+          "fw_fuses_atom_",
+          "cluster1_ccp"
+        ],
+        "ring": [
+          "ring_vf",
+          "_ring_",
+          "ring_fuse",
+          "llc",
+          "cbo"
+        ],
+        "gt": [
+          "_gt_vf",
+          "_gt_fuse",
+          "_gt_",
+          "graphics",
+          "gpu"
+        ],
+        "media": [
+          "media_vf",
+          "media_fuse",
+          "vebox",
+          "_vd_fuse",
+          "fw_fuses_media",
+          "fw_fuses_vpu_"
+        ],
+        "sa": [
+          "system_agent",
+          "uncore_sa",
+          "sa_fuse",
+          "sa_vf",
+          "fw_fuses_sa_",
+          "fw_fuses_de_",
+          "fw_fuses_nclk_",
+          "fw_fuses_qclk_",
+          "fw_fuses_config_tdp_power",
+          "fw_fuses_tdp_power",
+          "fw_fuses_reference_temp",
+          "fw_fuses_itd_cutoff",
+          "dlvr_"
+        ],
+        "io": [
+          "pcie",
+          "io_fuse",
+          "_io_vf",
+          "io_vf"
+        ]
+      },
+      "desc_hints": {
+        "bigcore": [
+          "cougar cove",
+          "performance core",
+          "p-core"
+        ],
+        "atom": [
+          "darkmont",
+          "efficiency core",
+          "e-core"
+        ],
+        "ring": [
+          "ring bus",
+          "last level cache"
+        ],
+        "gt": [
+          "graphics domain",
+          "gpu domain"
+        ],
+        "sa": [
+          "system agent",
+          "uncore voltage"
+        ],
+        "io": [
+          "pcie domain",
+          "io domain"
+        ]
+      },
+      "spec_conversion_hints": {
+        "_comment": "PTL confirmed: bigcore/atom/ring=100MHz, gnoc/gt/media/nclk/vpu=50MHz, sa_qclk=33.33MHz, de=24MHz (Intel HAS/MAS via Co-Design)",
+        "cluster0_bigcore":   { "freq_multiplier": 100.0  },
+        "cluster1_bigcore":   { "freq_multiplier": 100.0  },
+        "cluster0_atom":      { "freq_multiplier": 100.0  },
+        "cluster1_atom":      { "freq_multiplier": 100.0  },
+        "ring":               { "freq_multiplier": 100.0  },
+        "gnoc":               { "freq_multiplier":  50.0  },
+        "gt_acm_vpg":         { "freq_multiplier":  50.0  },
+        "gt":                 { "freq_multiplier":  50.0  },
+        "media":              { "freq_multiplier":  50.0  },
+        "nclk":               { "freq_multiplier":  50.0  },
+        "vpu":                { "freq_multiplier":  50.0  },
+        "sa_qclk":            { "freq_multiplier":  33.33 },
+        "de":                 { "freq_multiplier":  24.0  }
+      }
+    },
+    "generic": {
+      "display_name": "Generic Intel Platform",
+      "fuse_root": "cdie.fuses",
+      "core_fuse_pattern": "core{n}_fuse",
+      "system_fuse_names": [
+        "punit_fuses"
+      ],
+      "extra_fuse_names": [],
+      "bigcore_fuse_override": "core_fuse",
+      "domain_patterns": {
+        "bigcore": [
+          "_ia_core",
+          "_ia_vf",
+          "_ia_base_vf",
+          "_ia_p0_",
+          "_ia_p1_",
+          "_ia_pn_",
+          "_ia_min_ratio",
+          "_ia_max_ratio",
+          "_ia_reference",
+          "_ia_itd",
+          "_ia_leak",
+          "_ia_num_of",
+          "_ia_delta_vf",
+          "cluster0_bigcore",
+          "fw_fuses_ia_",
+          "cluster0_ccp_",
+          "fw_fuses_config_tdp_ratio"
+        ],
+        "atom": [
+          "atom_fuse",
+          "ecore",
+          "cpu0_fuse",
+          "cpu1_fuse",
+          "atom_ia",
+          "atom_vf",
+          "lmt_vf",
+          "atom_num_of",
+          "cluster1_atom",
+          "cluster0_atom",
+          "fw_fuses_atom_",
+          "cluster1_ccp"
+        ],
+        "ring": [
+          "ring_vf",
+          "_ring_",
+          "ring_fuse",
+          "llc",
+          "cbo"
+        ],
+        "gt": [
+          "_gt_vf",
+          "_gt_fuse",
+          "_gt_",
+          "graphics",
+          "gpu"
+        ],
+        "media": [
+          "media_vf",
+          "media_fuse",
+          "vebox",
+          "_vd_fuse",
+          "fw_fuses_media",
+          "fw_fuses_vpu_"
+        ],
+        "sa": [
+          "system_agent",
+          "uncore_sa",
+          "sa_fuse",
+          "sa_vf",
+          "fw_fuses_sa_",
+          "fw_fuses_de_",
+          "fw_fuses_nclk_",
+          "fw_fuses_qclk_",
+          "fw_fuses_config_tdp_power",
+          "fw_fuses_tdp_power",
+          "fw_fuses_reference_temp",
+          "fw_fuses_itd_cutoff",
+          "dlvr_"
+        ],
+        "io": [
+          "pcie",
+          "io_fuse",
+          "_io_vf",
+          "io_vf"
+        ]
+      },
+      "desc_hints": {
+        "bigcore": [
+          "performance core",
+          "p-core",
+          "big core"
+        ],
+        "atom": [
+          "efficiency core",
+          "e-core",
+          "atom core"
+        ],
+        "ring": [
+          "ring bus",
+          "last level cache",
+          "ring domain"
+        ],
+        "gt": [
+          "graphics domain",
+          "gpu domain",
+          "graphics tile"
+        ],
+        "sa": [
+          "system agent",
+          "uncore voltage"
+        ],
+        "io": [
+          "pcie domain",
+          "io domain"
+        ]
+      },
+      "spec_conversion_hints": {
+        "_comment": "Generic fallback hints covering all known Intel VF domain multipliers. Platform-specific entries above take precedence.",
+        "cluster0_bigcore":   { "freq_multiplier": 100.0  },
+        "cluster1_bigcore":   { "freq_multiplier": 100.0  },
+        "cluster0_atom":      { "freq_multiplier": 100.0  },
+        "cluster1_atom":      { "freq_multiplier": 100.0  },
+        "bigcore":            { "freq_multiplier": 100.0  },
+        "atom":               { "freq_multiplier": 100.0  },
+        "ring":               { "freq_multiplier": 100.0  },
+        "gnoc":               { "freq_multiplier":  50.0  },
+        "gt_acm_vpg":         { "freq_multiplier":  50.0  },
+        "gt":                 { "freq_multiplier":  50.0  },
+        "media":              { "freq_multiplier":  50.0  },
+        "nclk":               { "freq_multiplier":  50.0  },
+        "vpu":                { "freq_multiplier":  50.0  },
+        "sa_qclk":            { "freq_multiplier":  33.33 },
+        "de":                 { "freq_multiplier":  24.0  },
+        "ipu_ps":             { "freq_multiplier":  25.0  },
+        "ipu_is":             { "freq_multiplier":  16.666 }
+      }
+    }
+  }
+}

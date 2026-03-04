@@ -1,0 +1,91 @@
+# =============================================================================
+# ci.yml — VF Curve Manager Tool CI
+# =============================================================================
+# Runs the full 300-test suite on every push / pull-request.
+# All tests execute in MOCK mode — no Intel ITP hardware required.
+#
+# Environment variables:
+#   VF_MOCK_MODE=1           → hardware reads return cached values; writes no-op
+#   QT_QPA_PLATFORM=offscreen → Qt runs headless (no display server needed)
+# =============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  test:
+    name: "Python ${{ matrix.python-version }} / ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.10", "3.11"]
+
+    steps:
+      # ── Checkout ────────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── Python setup ────────────────────────────────────────────────────────
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      # ── Linux: Qt system libs (required for PyQt5 headless) ─────────────────
+      - name: Install Qt system dependencies (Linux only)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 \
+            libxcb-xkb1 libxkbcommon-x11-0 libegl1 libgl1
+
+      # ── Python dependencies ──────────────────────────────────────────────────
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[test]"
+
+      # ── Lint (fast fail on syntax errors) ───────────────────────────────────
+      - name: Check for syntax errors
+        run: |
+          python -m py_compile src/vf_curve_manager_cli.py
+          python -m py_compile src/discovery/discovery_core.py
+          python -m py_compile src/discovery/discovery_learn.py
+          python -m py_compile src/ui/curve_manager_ui.py
+
+      # ── Test suite (mock mode, headless Qt) ─────────────────────────────────
+      - name: Run tests
+        env:
+          VF_MOCK_MODE: "1"
+          QT_QPA_PLATFORM: offscreen
+          PYTHONPATH: src
+        run: |
+          python -m pytest tests/ \
+            --cov=src \
+            --cov-report=term-missing \
+            --tb=short \
+            -q \
+            --no-header
+          # Coverage gate (fail_under) is enforced by pyproject.toml [tool.coverage.report]
+          # Hardware-only files (fuse_io, itp_recovery) and subprocess-tested entry-points
+          # are omitted there; effective gate is 30% over mockable code.
+
+      # ── Upload coverage report ───────────────────────────────────────────────
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: .coverage
+          retention-days: 14
