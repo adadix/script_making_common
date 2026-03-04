@@ -1,0 +1,58 @@
+# ── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# ── Virtual environments ─────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Testing & coverage ───────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.coveragerc
+
+# ── Tool runtime outputs ──────────────────────────────────────────────────────
+Logs/*.log
+Logs/*.xlsx
+Logs/*.png
+Logs/*.csv
+Logs/*.log
+Logs/*.txt
+Logs/vf_curve_manager_undo_log.json
+Logs/boot_time_stats.json
+Logs/htmlcov/
+
+# ── Stray runtime logs (written by ITP/pysvtools to cwd) ────────────────────
+src/*.log
+*.log
+
+# ── Backup & temp files ───────────────────────────────────────────────────────
+*.bak
+*.bak2
+*.pre_migration
+*.tmp
+*.temp
+archive/
+
+# ── OS artefacts ─────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDEs ─────────────────────────────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.suo
+*.user

@@ -1,0 +1,150 @@
+================================================================================
+  VF Curve Manager Tool v2.2 - CLI Quick Reference
+================================================================================
+
+COMMANDS
+--------
+  list                      List all available domains
+  show                      Display VF curves (read-only)
+  bump                      Bump all WP voltages up or down
+  edit                      Edit specific WP voltages/frequencies
+  flatten                   Flatten P0/P1/Pn frequency ratios to a single value
+  customize                 Set custom P0/P1/Pn frequencies (MHz)
+  sweep                     Sweep voltage offset in steps; record pass/fail
+  revert-last               Undo the most recent voltage/frequency write
+  scalars                   View or write scalar modifier registers
+  dump-registers            Export all discovered registers to Excel
+  edit-register             View or write an individual discovered register
+  probe-platform            List all namednodes, live fuse roots, and their containers
+
+GLOBAL FLAGS (place BEFORE the command name)
+--------------------------------------------
+  --rediscover              Force full hardware re-discovery before command
+  --no-sut-check            Disable SUT boot verification (~20s instead of ~300s)
+                            NOTE: SUT check is ON by default in v2.2
+  --mock                    No ITP/hardware needed; reads from vf_discovery_cache.json
+  --json                    Emit JSON output to stdout (for CI/CD pipelines)
+
+COMMON USAGE (from root directory)
+----------------------------------
+  run_cli.bat list
+  run_cli.bat show --domains cluster0_bigcore ring
+  run_cli.bat bump --domains ring --value 10 --direction up
+  run_cli.bat edit --domain cluster0_bigcore --wp 0:850 --wp 1:800
+  run_cli.bat flatten --domain cluster0_bigcore --target p1
+  run_cli.bat customize --domain cluster0_bigcore --p0 4500 --p1 1500 --pn 400
+  run_cli.bat sweep --domain cluster0_bigcore --from -50 --to 50 --step 10
+  run_cli.bat revert-last
+  run_cli.bat scalars show
+  run_cli.bat scalars show --type itd_voltage
+  run_cli.bat scalars edit --key fw_fuses_ia_itd_cutoff_v --value 850
+  run_cli.bat dump-registers
+  run_cli.bat dump-registers --active-only
+  run_cli.bat edit-register --name ia_vf_voltage_reg_adder_cluster0
+  run_cli.bat edit-register --name adder_cluster0 --set-value 12 --yes
+  run_cli.bat probe-platform
+  run_cli.bat --rediscover list
+  run_cli.bat --no-sut-check bump --domains ring --value 10 --direction up --yes
+  run_cli.bat --mock show --domains cluster0_bigcore
+  run_cli.bat --json list
+
+COMMON USAGE (from src/ directory)
+-----------------------------------
+  python vf_curve_manager_cli.py list
+  python vf_curve_manager_cli.py show --domains cluster0_bigcore ring
+  python vf_curve_manager_cli.py bump --domains ring --value 10 --direction up
+  python vf_curve_manager_cli.py edit --domain cluster0_bigcore --wp 0:850 --wp 1:800
+  python vf_curve_manager_cli.py flatten --domain cluster0_bigcore --target p1
+  python vf_curve_manager_cli.py customize --domain cluster0_bigcore --p0 4500 --p1 1500 --pn 400
+  python vf_curve_manager_cli.py sweep --domain cluster0_bigcore --from -50 --to 50 --step 10 --yes
+  python vf_curve_manager_cli.py revert-last --yes
+  python vf_curve_manager_cli.py scalars show
+  python vf_curve_manager_cli.py scalars show --type p0_override
+  python vf_curve_manager_cli.py scalars edit --key fw_fuses_ia_p0_ratio_avx --value 3600 --yes
+  python vf_curve_manager_cli.py dump-registers
+  python vf_curve_manager_cli.py dump-registers --active-only
+  python vf_curve_manager_cli.py edit-register --name ia_vf_voltage_reg_adder_cluster0
+  python vf_curve_manager_cli.py edit-register --name adder_cluster0 --set-value 0x0c --yes
+  python vf_curve_manager_cli.py probe-platform
+  python vf_curve_manager_cli.py --rediscover dump-registers
+  python vf_curve_manager_cli.py --no-sut-check bump --domains ring --value 5 --direction up --yes
+  python vf_curve_manager_cli.py --mock list
+
+COMMAND OPTIONS
+---------------
+  --yes                    Skip confirmation prompts (REQUIRED for automation)
+  --no-interpolate         Disable plot interpolation (show command only)
+  --active-only            Export only active registers (dump-registers only)
+  --set-value INT          New register value in decimal or 0x hex (edit-register only)
+  --type TYPE              Filter scalar modifier type (scalars show only)
+                           Values: itd_voltage, itd_slope, p0_override, downbin,
+                                   mct_delta, atom_delta, acode_min
+  --key REGISTER           Scalar modifier register name (scalars edit only)
+  --value FLOAT            Physical value to write: mV for voltage, MHz for ratio
+                           (scalars edit only)
+  --from INT               Start voltage offset in mV, can be negative (sweep only)
+  --to INT                 End voltage offset in mV (sweep only)
+  --step INT               Step size in mV, must be > 0 (sweep only)
+  --help                   Show detailed help
+
+SCALAR MODIFIER TYPES
+---------------------
+  itd_voltage    IVR thermal device voltage threshold
+  itd_slope      IVR thermal device slope / intercept
+  p0_override    P0 turbo ratio override (per domain)
+  downbin        Frequency downbin limit
+  mct_delta      Multi-Core Turbo voltage delta
+  atom_delta     Atom cluster voltage delta
+  acode_min      Minimum adaptive code
+
+AUTOMATION MODE (use --yes flag)
+---------------------------------
+  # All hardware-modifying commands require --yes for unattended operation
+
+  run_cli.bat bump --domains ring --value 10 --direction up --yes
+  run_cli.bat edit --domain cluster0_bigcore --wp 0:850 --yes
+  run_cli.bat flatten --domain cluster0_bigcore --target p1 --yes
+  run_cli.bat customize --domain ring --p0 4500 --p1 1500 --pn 400 --yes
+  run_cli.bat sweep --domain cluster0_bigcore --from -20 --to 20 --step 5 --yes
+  run_cli.bat revert-last --yes
+  run_cli.bat scalars edit --key fw_fuses_ia_itd_cutoff_v --value 900 --yes
+  run_cli.bat edit-register --name adder_cluster0 --set-value 12 --yes
+
+ACTIVE REGISTER DEFINITION
+---------------------------
+  Active = value != 0
+        OR register type is zero-valid (adder, delta, vf_index, num_of,
+           v_gap, vfloor, vceil) where 0 is a legitimate programmed state
+
+EXIT CODES (for scripting)
+---------------------------
+  Exit 0   = Success
+  Exit 1   = Error (invalid args, operation failed)
+  Exit 2   = Cold reset detected (fuses auto-reverted)
+  Exit 130 = Cancelled by user (Ctrl+C)
+
+FUSE ROOT DISCOVERY (not hardcoded)
+-------------------------------------
+  The tool dynamically finds ALL live fuse roots at discovery time:
+    1. dir() namednodes namespace  -> finds cdie0, soc, die, etc. automatically
+    2. Static fallback candidates  -> cdie.fuses, soc.fuses, die.fuses, chip.fuses
+    3. platform_config.json hint   -> fuse_root value always included
+  All found roots are scanned together. platform_config.json fuse_root is a
+  fallback hint, NOT a ceiling.
+
+OUTPUT LOCATION
+---------------
+  All files saved to: Logs/  (project root)
+  - VF curve:        vf_curve_dump_DOMAIN_TIMESTAMP.xlsx
+  - Bump:            vf_curve_bump_DIRECTION_DOMAIN_TIMESTAMP.xlsx
+  - WP edit:         vf_curve_wp_edit_DOMAIN_TIMESTAMP.xlsx
+  - Flatten:         flatten_freq_DOMAIN_TIMESTAMP.xlsx
+  - Sweep:           vf_sweep_DOMAIN_TIMESTAMP.xlsx
+  - Scalar edit:     scalar_edit_REGISTER_TIMESTAMP.xlsx
+  - Register dump:   VF_Registers_PLATFORM_TIMESTAMP.xlsx
+  - Register edit:   register_edit_NAME_TIMESTAMP.xlsx
+  - Plots:           same name with .png extension
+
+For full documentation, see doc/USER_GUIDE.md
+
+================================================================================
