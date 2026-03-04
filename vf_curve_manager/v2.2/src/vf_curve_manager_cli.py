@@ -1028,6 +1028,9 @@ def cmd_probe_platform(args):
         sys.stdout.write('\n')
 
     return 0
+
+
+def main():
     """Main CLI entry point."""
     # ── Structured logging ────────────────────────────────────────────────
     try:

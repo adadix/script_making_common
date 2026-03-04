@@ -750,6 +750,19 @@ def discover_fuse_paths(cfg: dict) -> list:
                     seen_paths.add(p)
             continue
 
+        # dir() of this fuse root succeeded — pysvtools auto-loads fuse RAM
+        # when any attribute of the .fuses object is accessed.  Mark this root
+        # as pre-loaded in the session guard so load_fuse_ram_once() (Step 3)
+        # detects it and skips the explicit hardware call, which would hang on
+        # a double-load (observed on WCL with soc.fuses).
+        try:
+            from utils.hardware_access import notify_fuse_ram_loaded as _nfl
+            _nfl(fuse_root)
+            log.info(f"    [pre-load] {fuse_root} marked as loaded "
+                     f"(dir() already accessed fuse data)")
+        except Exception:
+            pass
+
         log.info(f"\n[+] {fuse_root} — {len(containers)} container(s):")
         for attr_name, full_path, bucket in containers:
             log.info(f"    [{bucket}]  {full_path}")
@@ -774,8 +787,19 @@ def load_fuse_ram_once(fuse_root: str) -> bool:
             log.error(f"Cannot resolve fuse root: {fuse_root}")
             return False
 
-        # Check if fuse RAM is already loaded — pysvtools sets internal flags
-        # or the object exposes a 'loaded' / '_loaded' attribute after load.
+        # Check 1: session guard — set by discover_fuse_paths() (Step 2) when
+        # dir() of the fuse root already triggered an auto-load, OR set by a
+        # previous load_fuse_ram_once() call.  This is the reliable check for
+        # double-load prevention (object flags below are not always set by pysvtools).
+        try:
+            from utils.hardware_access import _LOADED_FUSE_RAM_PATHS
+            if fuse_root in _LOADED_FUSE_RAM_PATHS:
+                log.info(f"Fuse RAM '{fuse_root}' already in session guard — skipping")
+                return True
+        except Exception:
+            pass
+
+        # Check 2: object-level flags (pysvtools sometimes sets these)
         already_loaded = False
         for flag in ('_fuse_ram_loaded', 'fuse_ram_loaded', '_loaded', 'loaded'):
             val = getattr(obj, flag, None)
