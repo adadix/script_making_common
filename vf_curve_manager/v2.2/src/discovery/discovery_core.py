@@ -793,15 +793,47 @@ def load_fuse_ram_once(fuse_root: str) -> bool:
             log.error("load_fuse_ram() not available on this platform")
             return False
 
-        log.info(f"\n[*] Loading fuse RAM from {fuse_root} (2-5 min, please wait)...")
+        # Timeout guard: platforms like NovaLake (NVL) with multiple tiles can
+        # cause load_fuse_ram() to hang indefinitely.  Run it in a daemon thread
+        # with a generous timeout so discovery is never permanently blocked.
+        _LOAD_FUSE_RAM_TIMEOUT_SEC: int = 720   # 12 minutes
+
+        log.info(f"\n[*] Loading fuse RAM from {fuse_root} "
+                 f"(up to {_LOAD_FUSE_RAM_TIMEOUT_SEC // 60} min, please wait)...")
+        print(f"    [*] Loading fuse RAM from {fuse_root} "
+              f"(up to {_LOAD_FUSE_RAM_TIMEOUT_SEC // 60} min)...",
+              flush=True)
         start: float = time.time()
-        # Use fd-level suppression (_SuppressHWNoise) so that C-extension code in
-        # pysvtools (Python 3.13 on NVL) which writes directly to fd-1/fd-2 is also
-        # silenced.  contextlib.redirect_stdout only hooks sys.stdout and would miss
-        # the 'post condition failed' / AccessTimeoutError traceback on NVL.
-        with _SuppressHWNoise():
-            obj.load_fuse_ram()
-        log.info(f"Fuse RAM loaded in {time.time() - start:.1f} seconds\n")
+
+        def _do_load() -> None:
+            # Use fd-level suppression (_SuppressHWNoise) so that C-extension code in
+            # pysvtools (Python 3.13 on NVL) which writes directly to fd-1/fd-2 is also
+            # silenced.  contextlib.redirect_stdout only hooks sys.stdout and would miss
+            # the 'post condition failed' / AccessTimeoutError traceback on NVL.
+            with _SuppressHWNoise():
+                obj.load_fuse_ram()
+
+        import concurrent.futures as _cf
+        try:
+            with _cf.ThreadPoolExecutor(max_workers=1) as _pool:
+                _fut = _pool.submit(_do_load)
+                _fut.result(timeout=_LOAD_FUSE_RAM_TIMEOUT_SEC)
+        except _cf.TimeoutError:
+            elapsed = time.time() - start
+            log.warning(
+                f"\n[!] load_fuse_ram() timed out after {elapsed/60:.1f} min on '{fuse_root}'.\n"
+                f"    This is common on multi-tile platforms (NVL, PTL) where ITP may\n"
+                f"    pre-load fuse RAM during tap-unlock.  Continuing as-if loaded."
+            )
+            print(
+                f"    [!] load_fuse_ram() timed out after {elapsed/60:.1f} min — "
+                f"assuming pre-loaded by ITP.", flush=True
+            )
+            _notify_hw_access_loaded()
+            return True
+
+        log.info(f"    Fuse RAM loaded in {time.time() - start:.1f} seconds\n")
+        print(f"    [+] Fuse RAM loaded in {time.time() - start:.1f} s", flush=True)
         _notify_hw_access_loaded()
         return True
     except Exception as e:

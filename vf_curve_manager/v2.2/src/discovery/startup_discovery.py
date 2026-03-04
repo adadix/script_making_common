@@ -101,6 +101,11 @@ def maybe_run_discovery(force: bool = False) -> bool:
         except Exception as _pf_ex:
             log.debug("Platform cross-check skipped: %s", _pf_ex)
 
+    # Announce so the user can see discovery is actively running
+    # (all subsequent progress is printed directly to the terminal).
+    print("\n[*] Starting VF register discovery — this takes several minutes "
+          "on first run or after platform change.", flush=True)
+
     try:
         from .auto_discover_vf_registers import run_discovery_pipeline
         return run_discovery_pipeline(force=force)

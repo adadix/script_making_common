@@ -1343,6 +1343,10 @@ def run_discovery_pipeline(force: bool = False) -> bool:
                 pass  # Corrupted JSON → fall through and re-discover
 
     # --- Run pipeline -------------------------------------------------------
+    print("\n" + "=" * 70, flush=True)
+    print("  AUTO VF REGISTER DISCOVERY", flush=True)
+    print("  vf_domains.json will be populated from live hardware", flush=True)
+    print("=" * 70, flush=True)
     log.info("")
     log.info("=" * 80)
     log.info("  AUTO VF REGISTER DISCOVERY")
@@ -1350,28 +1354,38 @@ def run_discovery_pipeline(force: bool = False) -> bool:
     log.info("=" * 80)
 
     # Step 0: detect platform + load config
+    print("  [Step 0] Detecting platform...", end=' ', flush=True)
     log.info("\n[*] Step 0: Detecting platform...")
     platform_name: str = detect_platform_name()
+    print(platform_name, flush=True)
     log.info(f"    Detected: {platform_name}")
     cfg = load_platform_config(platform_name)
     fuse_root = cfg['fuse_root']
 
     # Step 2: discover fuse paths
+    print(f"  [Step 2] Discovering fuse paths under {fuse_root}...", flush=True)
     log.info(f"\n[*] Step 2: Discovering fuse paths under {fuse_root}...")
     fuse_paths = discover_fuse_paths(cfg)
     if not fuse_paths:
         log.error("No fuse paths found — discovery aborted. "
               "Check ITP connection and platform_config.json.")
+        print("  [!] No fuse paths found — discovery aborted.", flush=True)
         return False
+    print(f"  [Step 2] Found {len(fuse_paths)} fuse path(s):", flush=True)
+    for p in fuse_paths:
+        print(f"           - {p}", flush=True)
     log.info(f"Found {len(fuse_paths)} fuse path(s):")
     for p in fuse_paths:
         log.info(f"    - {p}")
 
     # Step 3: load fuse RAM (required before register reads)
+    print(f"  [Step 3] Loading fuse RAM from {fuse_root} (up to 12 min)...",
+          flush=True)
     log.info(f"\n[*] Step 3: Loading fuse RAM (this takes 2-5 min)...")
     if not load_fuse_ram_once(fuse_root):
         log.error("Fuse RAM load failed — register values may be unavailable; "
               "continuing anyway")
+        print("  [!] Fuse RAM load failed — continuing anyway.", flush=True)
 
     # Register ALL discovered fuse roots so the session guard in
     # hardware_access._LOADED_FUSE_RAM_PATHS covers every root found on
@@ -1394,6 +1408,8 @@ def run_discovery_pipeline(force: bool = False) -> bool:
 
     # Step 4: analyse all fuse paths — with cold-reset resume support
     _n_paths: int = len(fuse_paths)
+    print(f"  [Step 4] Analysing registers across {_n_paths} fuse path(s)...",
+          flush=True)
     log.info(f"\n[*] Step 4: Analysing registers across {_n_paths} fuse path(s)...")
     start_time: float = time.time()
     all_path_results: dict = {}
@@ -1471,10 +1487,14 @@ def run_discovery_pipeline(force: bool = False) -> bool:
     _scan_elapsed: float = time.time() - start_time
     log.info(f"\r  [{'#' * 30}] 100%  ({_n_paths}/{_n_paths})  "
           f"done in {_scan_elapsed:.1f}s{' ' * 20}")
+    print(f"  [Step 4] Scan complete: {_n_paths} path(s) in {_scan_elapsed:.1f}s",
+          flush=True)
     if _scan_errors:
         log.warning(f"\n[WARNING] {len(_scan_errors)} path(s) skipped during Step 4:")
         for _e in _scan_errors:
             log.info(f"  • {_e}")
+        print(f"  [!] {len(_scan_errors)} path(s) skipped — see log for details.",
+              flush=True)
 
     # Step 4.5: auto-learn any unknown-domain registers; save patterns to JSON
     auto_learn_unknown_patterns(all_path_results, platform_name, cfg)
@@ -1524,6 +1544,15 @@ def run_discovery_pipeline(force: bool = False) -> bool:
     except Exception as _sxl_exc:  # noqa: BLE001
         log.warning(f"    Scalar export skipped: {_sxl_exc}")
 
+    print("\n" + "=" * 70, flush=True)
+    print(f"  DISCOVERY COMPLETE  ({elapsed:.1f}s)", flush=True)
+    print("=" * 70, flush=True)
+    print(f"  Platform      : {cfg.get('display_name', platform_name)}", flush=True)
+    print(f"  Paths scanned : {len(fuse_paths)}", flush=True)
+    print(f"  Active regs   : {total_active}", flush=True)
+    print(f"  VF domains    : {changes}", flush=True)
+    print(f"  Scalar mods   : {scalar_count}", flush=True)
+    print("=" * 70, flush=True)
     log.info("")
     log.info("=" * 80)
     log.info(f"  DISCOVERY COMPLETE  ({elapsed:.1f}s)")
