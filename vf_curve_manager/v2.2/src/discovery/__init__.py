@@ -1,1 +1,0 @@
-"""VF Register Discovery package."""

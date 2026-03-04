@@ -1,1 +1,0 @@
-"""UI tab widget builders."""
