@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Refresh CoDesign Spec DB",
+      "type": "shell",
+      "command": "python src/discovery/spec_db_refresh_helper.py",
+      "options": {
+        "cwd": "${workspaceFolder}/vf_curve_manager/v2_2"
+      },
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new"
+      },
+      "problemMatcher": [],
+      "detail": "Show platforms / registers missing from fuse_spec_db.json, then ask Copilot to query CoDesign and update the DB."
+    }
+  ]
+}

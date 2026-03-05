@@ -1481,10 +1481,13 @@ def save_json_template(recommendations: dict) -> str:
     return template_path
 
 
-def _all_results_to_flat_records(all_path_results: dict) -> list:
+def _all_results_to_flat_records(all_path_results: dict,
+                                  platform_name: str = '') -> list:
     """Flatten all_path_results into a list of plain dicts for caching and export.
 
-    Each record: name, value, hex, active, category, domain, fuse_path, description.
+    Each record: name, value, hex, active, category, domain, fuse_path,
+    description, converted, plus spec_* fields from the HAS spec DB when
+    *platform_name* is provided.
     Sorted: active registers first, then by domain, then alphabetically.
     """
     # Lazy import avoids circular dependency (discovery_learn imports discovery_core).
@@ -1508,6 +1511,16 @@ def _all_results_to_flat_records(all_path_results: dict) -> list:
                                        reg.get('value')),
                 })
     records.sort(key=lambda r: (not r['active'], r['domain'], r['name']))
+
+    # Enrich records with HAS spec metadata (description, precision, units, …)
+    if platform_name:
+        try:
+            from .spec_db import enrich_records  # noqa: PLC0415
+            enrich_records(platform_name, records)
+        except Exception as _spec_exc:  # never break discovery for a spec-DB issue
+            import logging as _lg
+            _lg.getLogger(__name__).debug('spec_db enrich skipped: %s', _spec_exc)
+
     return records
 
 
@@ -1531,15 +1544,23 @@ def _save_discovery_cache(records: list, platform_name: str,
                 except (TypeError, ValueError, OverflowError):
                     v = None
             clean.append({
-                'name':        str(r.get('name', '')),
-                'value':       v,
-                'hex':         str(r.get('hex', '')),
-                'active':      bool(r.get('active', False)),
-                'category':    str(r.get('category', '')),
-                'domain':      str(r.get('domain', 'unknown')),
-                'fuse_path':   str(r.get('fuse_path', '')),
-                'description': str(r.get('description') or ''),
-                'converted':   str(r.get('converted', '')),
+                'name':             str(r.get('name', '')),
+                'value':            v,
+                'hex':              str(r.get('hex', '')),
+                'active':           bool(r.get('active', False)),
+                'category':         str(r.get('category', '')),
+                'domain':           str(r.get('domain', 'unknown')),
+                'fuse_path':        str(r.get('fuse_path', '')),
+                'description':      str(r.get('description') or ''),
+                'converted':        str(r.get('converted', '')),
+                # HAS spec metadata (empty strings when spec DB has no entry)
+                'spec_description': str(r.get('spec_description') or ''),
+                'spec_precision':   str(r.get('spec_precision')   or ''),
+                'spec_units':       str(r.get('spec_units')       or ''),
+                'spec_width':       int(r.get('spec_width')       or 0),
+                'spec_default':     str(r.get('spec_default')     or ''),
+                'spec_domain':      str(r.get('spec_domain')      or ''),
+                'spec_doc':         str(r.get('spec_doc')         or ''),
             })
         cache = {
             'platform':         platform_name,

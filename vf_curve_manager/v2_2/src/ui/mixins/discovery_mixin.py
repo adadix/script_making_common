@@ -19,6 +19,9 @@ class _DiscoveryWorker(QThread):
     progress      = pyqtSignal(str)
     progress_step = pyqtSignal(int, int)   # (current_path_index, total_paths)
     error         = pyqtSignal(str)
+    # Emitted when the platform has zero spec-DB coverage.
+    # Args: (platform_name, pre_composed_copilot_query)
+    spec_missing  = pyqtSignal(str, str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -48,6 +51,28 @@ class _DiscoveryWorker(QThread):
             if not records:
                 return None, None, None, None
             return records, platform_display, timestamp, "live -- just discovered"
+
+        # Enrich with HAS spec metadata (fast; no-op if already present or DB absent)
+        if _pname:
+            try:
+                from discovery.spec_db import enrich_records, write_request, get_codesign_project
+                enrich_records(_pname, records)
+                # If zero registers got spec data, platform is not in DB yet — notify UI
+                hits = sum(1 for r in records if r.get('spec_description'))
+                if hits == 0:
+                    missing_names = [r['name'] for r in records]
+                    write_request(_pname, missing_names)
+                    proj = get_codesign_project(_pname)
+                    proj_hint = f' (CoDesign project: {proj})' if proj else ''
+                    query = (
+                        f'Please query CoDesign MCP for all VF/ITD/PM fuse specs '
+                        f'for platform {_pname}{proj_hint} and add the missing entries '
+                        f'to src/fuse_spec_db.json so the VF Curve Manager '
+                        f'shows HAS descriptions and precision in the registers tab.'
+                    )
+                    self.spec_missing.emit(_pname, query)
+            except Exception:
+                pass
 
         self.progress.emit(
             "Cache loaded ({} registers) -- refreshing from hardware...".format(len(records))
@@ -102,9 +127,27 @@ class _DiscoveryWorker(QThread):
             auto_learn_unknown_patterns(all_path_results, platform_name, cfg)
 
             self.progress.emit("Saving cache...")
-            records   = _all_results_to_flat_records(all_path_results)
+            records   = _all_results_to_flat_records(all_path_results, platform_name)
             timestamp = _time.strftime("%Y-%m-%d %H:%M:%S")
             _save_discovery_cache(records, platform_name, platform_display)
+
+            # Emit spec_missing if this platform has no HAS spec coverage
+            hits = sum(1 for r in records if r.get('spec_description'))
+            if hits == 0 and platform_name:
+                try:
+                    from discovery.spec_db import write_request, get_codesign_project
+                    write_request(platform_name, [r['name'] for r in records])
+                    proj = get_codesign_project(platform_name)
+                    proj_hint = f' (CoDesign project: {proj})' if proj else ''
+                    query = (
+                        f'Please query CoDesign MCP for all VF/ITD/PM fuse specs '
+                        f'for platform {platform_name}{proj_hint} and add the missing '
+                        f'entries to src/fuse_spec_db.json so the VF Curve Manager '
+                        f'shows HAS descriptions and precision in the registers tab.'
+                    )
+                    self.spec_missing.emit(platform_name, query)
+                except Exception:
+                    pass
 
             log.info("[DiscoveryWorker] live scan complete -- %d registers", len(records))
             return records, platform_display, timestamp
@@ -218,6 +261,11 @@ class DiscoveryMixin:
             QMessageBox.critical(self, "Discovery Error",
                                  "Discovery failed:\n{}".format(msg))
 
+        _spec_missing_info = [None]   # [0] = (platform, query) or None
+
+        def _on_spec_missing(platform, query):
+            _spec_missing_info[0] = (platform, query)
+
         def _on_finished(records, platform_display, timestamp, hw_status):
             dlg.close()
             if records is None:
@@ -229,11 +277,15 @@ class DiscoveryMixin:
                     "You can also run:  python auto_discover_vf_registers.py",
                 )
                 return
-            self._populate_registers_tab(records, platform_display, timestamp, hw_status)
+            self._populate_registers_tab(
+                records, platform_display, timestamp, hw_status,
+                spec_missing_info=_spec_missing_info[0],
+            )
 
         worker.progress.connect(_on_progress)
         worker.progress_step.connect(_on_progress_step)
         worker.error.connect(_on_error)
+        worker.spec_missing.connect(_on_spec_missing)
         worker.finished.connect(_on_finished)
 
         def _cancel():
@@ -244,7 +296,8 @@ class DiscoveryMixin:
 
         worker.start()
 
-    def _populate_registers_tab(self, records, platform_display, timestamp, hw_status):
+    def _populate_registers_tab(self, records, platform_display, timestamp, hw_status,
+                                spec_missing_info=None):
         for idx in range(self.output_tabs.count()):
             if self.output_tabs.tabText(idx).startswith("\U0001f50d"):
                 self.output_tabs.removeTab(idx)
@@ -260,6 +313,7 @@ class DiscoveryMixin:
             platform_display or "Unknown",
             timestamp,
             hw_status or "cached",
+            spec_missing_info=spec_missing_info,
         )
         badge = "live" if "live" in (hw_status or "").lower() else "cached"
         tab_idx = self.output_tabs.addTab(
@@ -267,9 +321,10 @@ class DiscoveryMixin:
         self.output_tabs.setCurrentIndex(tab_idx)
 
     def _build_registers_tab_widget(self, records, platform_display, timestamp,
-                                    hw_status="cached"):
+                                    hw_status="cached", spec_missing_info=None):
         from ui.tabs.registers_tab import build_registers_tab_widget as _build
-        return _build(records, platform_display, timestamp, hw_status)
+        return _build(records, platform_display, timestamp, hw_status,
+                      spec_missing_info=spec_missing_info)
 
     def open_scalar_modifiers_dialog(self):
         if not hasattr(self, "curve_engine") or self.curve_engine is None:

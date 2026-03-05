@@ -1576,7 +1576,7 @@ def run_discovery_pipeline(force: bool = False) -> bool:
                 if all_path_results:
                     log.info("Saving partial results to cache before waiting for recovery...")
                     _save_discovery_cache(
-                        _all_results_to_flat_records(all_path_results),
+                        _all_results_to_flat_records(all_path_results, platform_name),
                         platform_name,
                         cfg.get('display_name', platform_name),
                     )
@@ -1610,7 +1610,7 @@ def run_discovery_pipeline(force: bool = False) -> bool:
             # Checkpoint every 5 paths so a late crash doesn't lose everything
             if (_path_idx + 1) % 5 == 0:
                 _save_discovery_cache(
-                    _all_results_to_flat_records(all_path_results),
+                    _all_results_to_flat_records(all_path_results, platform_name),
                     platform_name,
                     cfg.get('display_name', platform_name),
                 )
@@ -1670,7 +1670,7 @@ def run_discovery_pipeline(force: bool = False) -> bool:
 
     # Save flat snapshot for 'dump-registers' CLI command and GUI Discovered Registers tab
     _save_discovery_cache(
-        _all_results_to_flat_records(all_path_results),
+        _all_results_to_flat_records(all_path_results, platform_name),
         platform_name,
         cfg.get('display_name', platform_name),
     )

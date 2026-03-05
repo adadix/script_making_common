@@ -1,0 +1,2679 @@
+{
+  "__version__": "2026-03-05",
+  "__platforms__": ["WCL", "NVL", "GFC"],
+  "__notes__": {
+    "WCL": "Wildcat Lake product — bigcore/atomcore/ring/GT/DE from WCL HAS",
+    "NVL": "Nova Lake product — GT/DE/ITD from NVL HAS",
+    "GFC": "GFC bigcore-tile IP specs (Granite Falls Crestmont) — used by RZL, TTL, HBO platforms via alias in spec_db.py"
+  },
+  "WCL": {
+    "CLUSTER0_BIGCORE.VF_RATIO": {
+      "description": "Ratio for ratio/voltage points for power plane. Characterizing ratio in 100MHz Units for IA/RING. (10 instances)",
+      "width": 7,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "0",
+      "domain": "bigcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "CLUSTER0_BIGCORE.VF_VOLTAGE": {
+      "description": "Voltage for ratio/voltage points for power plane. Characterizing voltage in U1.8 format. (10 instances)",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0",
+      "domain": "bigcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "CLUSTER0_BIGCORE.P0_RATIO": {
+      "description": "Maximal frequency (turbo)",
+      "width": 7,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "CLUSTER0_BIGCORE.P1_RATIO": {
+      "description": "Guaranteed non-turbo frequency",
+      "width": 7,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "CLUSTER0_BIGCORE.PN_RATIO": {
+      "description": "Lowest requested p-state",
+      "width": 7,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "CLUSTER0_BIGCORE.ITD_CUTOFF_V": {
+      "description": "ITD effect cutoff voltage",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "CLUSTER0_BIGCORE.ITD_SLOPE": {
+      "description": "ITD slope correction (low temp). Fuse in U-8.16 (1/C).",
+      "width": 9,
+      "precision": "U-8.16",
+      "units": "1/C",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "CLUSTER0_BIGCORE.ITD_CUTOFF_V2": {
+      "description": "ITD effect cutoff voltage (2nd point)",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "CLUSTER0_BIGCORE.ITD_SLOPE2": {
+      "description": "ITD slope correction (2nd point). Fuse in U-8.16 (1/C).",
+      "width": 9,
+      "precision": "U-8.16",
+      "units": "1/C",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "CLUSTER0_BIGCORE.ITD_FLOOR_V": {
+      "description": "ITD floor voltage",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "CLUSTER0_BIGCORE.REFERENCE_VOLTAGE": {
+      "description": "Reference voltage for leakage/Cdyn equations",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "CLUSTER0_BIGCORE.LEAK": {
+      "description": "Leakage current at RC0, Tref, Vref. Fuse in U6.6 amperes.",
+      "width": 12,
+      "precision": "U6.6",
+      "units": "A",
+      "default": "320",
+      "domain": "bigcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "CLUSTER0_BIGCORE.CDYN_MAX": {
+      "description": "Max dynamic capacitance at RC0, Vref, Tref in U5.5 (nF).",
+      "width": 10,
+      "precision": "U5.5",
+      "units": "nF",
+      "default": "57",
+      "domain": "bigcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "CLUSTER0_BIGCORE.ACODE_MIN": {
+      "description": "Minimum ACODE for CEP throttling",
+      "width": 0,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "ATOMCORE.VF_RATIO": {
+      "description": "Ratio for ratio/voltage points for power plane. Characterizing ratio in 100MHz Units. (10 instances)",
+      "width": 7,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "0",
+      "domain": "atomcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "ATOMCORE.VF_VOLTAGE": {
+      "description": "Voltage for ratio/voltage points for power plane. Characterizing voltage in U1.8 format. (10 instances)",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0",
+      "domain": "atomcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "ATOMCORE.P0_RATIO": {
+      "description": "Maximal frequency (turbo)",
+      "width": 7,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "atomcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "ATOMCORE.P1_RATIO": {
+      "description": "Guaranteed non-turbo frequency",
+      "width": 7,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "atomcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "ATOMCORE.PN_RATIO": {
+      "description": "Lowest requested p-state",
+      "width": 7,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "atomcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "ATOMCORE.ITD_CUTOFF_V": {
+      "description": "ITD effect cutoff voltage",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "atomcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "ATOMCORE.ITD_SLOPE": {
+      "description": "ITD slope correction (low temp). Fuse in U-8.16 (1/C).",
+      "width": 9,
+      "precision": "U-8.16",
+      "units": "1/C",
+      "default": "",
+      "domain": "atomcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "ATOMCORE.ITD_CUTOFF_V2": {
+      "description": "ITD effect cutoff voltage (2nd point)",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "atomcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "ATOMCORE.ITD_SLOPE2": {
+      "description": "ITD slope correction (2nd point). Fuse in U-8.16 (1/C).",
+      "width": 9,
+      "precision": "U-8.16",
+      "units": "1/C",
+      "default": "",
+      "domain": "atomcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "ATOMCORE.ITD_FLOOR_V": {
+      "description": "ITD floor voltage",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "atomcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "ATOMCORE.REFERENCE_VOLTAGE": {
+      "description": "Reference voltage for leakage/Cdyn equations",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "atomcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "ATOMCORE.LEAK": {
+      "description": "Leakage current at RC0, Tref, Vref. Fuse in U6.6 amperes.",
+      "width": 12,
+      "precision": "U6.6",
+      "units": "A",
+      "default": "320",
+      "domain": "atomcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "ATOMCORE.CDYN_MAX": {
+      "description": "Max dynamic capacitance at RC0, Vref, Tref in U5.5 (nF).",
+      "width": 10,
+      "precision": "U5.5",
+      "units": "nF",
+      "default": "57",
+      "domain": "atomcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "ATOMCORE.ACODE_MIN": {
+      "description": "Minimum ACODE for CEP throttling",
+      "width": 0,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "atomcore",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "RING.VF_RATIO": {
+      "description": "Ratio for ratio/voltage points for power plane. Characterizing ratio in 100MHz Units. (10 instances)",
+      "width": 7,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "0",
+      "domain": "ring",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "RING.VF_VOLTAGE": {
+      "description": "Voltage for ratio/voltage points for power plane. Characterizing voltage in U1.8 format. (10 instances)",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0",
+      "domain": "ring",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "RING.P0_RATIO": {
+      "description": "Maximal frequency (turbo)",
+      "width": 7,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "ring",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "RING.P1_RATIO": {
+      "description": "Guaranteed non-turbo frequency",
+      "width": 7,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "ring",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "RING.PN_RATIO": {
+      "description": "Lowest requested p-state",
+      "width": 7,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "ring",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "RING.ITD_CUTOFF_V": {
+      "description": "ITD effect cutoff voltage",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "ring",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "RING.ITD_SLOPE": {
+      "description": "ITD slope correction (low temp). Fuse in U-8.16 (1/C).",
+      "width": 9,
+      "precision": "U-8.16",
+      "units": "1/C",
+      "default": "",
+      "domain": "ring",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "RING.ITD_CUTOFF_V2": {
+      "description": "ITD effect cutoff voltage (2nd point)",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "ring",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "RING.ITD_SLOPE2": {
+      "description": "ITD slope correction (2nd point). Fuse in U-8.16 (1/C).",
+      "width": 9,
+      "precision": "U-8.16",
+      "units": "1/C",
+      "default": "",
+      "domain": "ring",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "RING.ITD_FLOOR_V": {
+      "description": "ITD floor voltage",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "ring",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "RING.REFERENCE_VOLTAGE": {
+      "description": "Reference voltage for leakage/Cdyn equations",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "ring",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "RING.LEAK": {
+      "description": "Leakage current at RC0, Tref, Vref. Fuse in U6.6 amperes.",
+      "width": 12,
+      "precision": "U6.6",
+      "units": "A",
+      "default": "320",
+      "domain": "ring",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "RING.CDYN_MAX": {
+      "description": "Max dynamic capacitance at RC0, Vref, Tref in U5.5 (nF).",
+      "width": 10,
+      "precision": "U5.5",
+      "units": "nF",
+      "default": "57",
+      "domain": "ring",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "RING.ACODE_MIN": {
+      "description": "Minimum ACODE for CEP throttling",
+      "width": 0,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "ring",
+      "doc_source": "ptl_ccp_pm_has.html"
+    },
+    "GT_P0_RATIO": {
+      "description": "GT maximal frequency",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "40",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_P1_RATIO": {
+      "description": "Guaranteed non-turbo frequency",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "8",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_PN_RATIO": {
+      "description": "Lowest requested p-state can be equal or greater than the real minimum (fmax @ Vmin)",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "2",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_MIN_RATIO": {
+      "description": "Minimum ratio for GT domain",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "2",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GTPRESENT": {
+      "description": "Fuse hosted in SGUnit, that allows BIOS to know whether to trigger GT wake.",
+      "width": 0,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GDIE_DISABLE": {
+      "description": "Punit fuse to determine whether to bring Graphics Die ON and out of reset",
+      "width": 0,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_LEAK": {
+      "description": "Leakage current when GT is in RC0, in U11.5.6 amperes, measured at T=Tref and V=Vref.",
+      "width": 12,
+      "precision": "U6.6",
+      "units": "A",
+      "default": "320",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_CDYN_MAX": {
+      "description": "Maximal dynamic capacitance when GT is in RC0, at Vref and Tref in U10.5.5 (nF).",
+      "width": 10,
+      "precision": "U5.5",
+      "units": "nF",
+      "default": "57",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_CDYN_V_CORRECTION": {
+      "description": "Cdyn correction with respect to the voltage. Cdyn=(V-Vref)*correction+Cdyn_max. In U2.5 format.",
+      "width": 7,
+      "precision": "U0.7",
+      "units": "nF/V",
+      "default": "1",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_CDYN_T_CORRECTION": {
+      "description": "Cdyn correction with respect to the temperature. Usage and format TBD.",
+      "width": 7,
+      "precision": "",
+      "units": "",
+      "default": "1",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_VF_RATIO_0": {
+      "description": "Ratio for ratio/voltage points for power plane.",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x10",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "VF_RATIO_0": {
+      "description": "Ratio for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x10",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_VF_RATIO_1": {
+      "description": "Ratio for ratio/voltage points for power plane.",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x18",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "VF_RATIO_1": {
+      "description": "Ratio for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x18",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_VF_RATIO_2": {
+      "description": "Ratio for ratio/voltage points for power plane.",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x20",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "VF_RATIO_2": {
+      "description": "Ratio for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x20",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_VF_RATIO_3": {
+      "description": "Ratio for ratio/voltage points for power plane.",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "VF_RATIO_3": {
+      "description": "Ratio for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_VF_RATIO_4": {
+      "description": "Ratio for ratio/voltage points for power plane.",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "VF_RATIO_4": {
+      "description": "Ratio for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_VF_RATIO_5": {
+      "description": "Ratio for ratio/voltage points for power plane.",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "VF_RATIO_5": {
+      "description": "Ratio for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_VF_VOLTAGE_0": {
+      "description": "Voltage for ratio/voltage points for power plane",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x80",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "VF_VOLTAGE_0": {
+      "description": "Voltage for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x80",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_VF_VOLTAGE_1": {
+      "description": "Voltage for ratio/voltage points for power plane",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0xC0",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "VF_VOLTAGE_1": {
+      "description": "Voltage for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0xC0",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_VF_VOLTAGE_2": {
+      "description": "Voltage for ratio/voltage points for power plane",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x100",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "VF_VOLTAGE_2": {
+      "description": "Voltage for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x100",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_VF_VOLTAGE_3": {
+      "description": "Voltage for ratio/voltage points for power plane",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "VF_VOLTAGE_3": {
+      "description": "Voltage for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_VF_VOLTAGE_4": {
+      "description": "Voltage for ratio/voltage points for power plane",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "VF_VOLTAGE_4": {
+      "description": "Voltage for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_VF_VOLTAGE_5": {
+      "description": "Voltage for ratio/voltage points for power plane",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "VF_VOLTAGE_5": {
+      "description": "Voltage for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_ITD_CUTOFF_V": {
+      "description": "The voltage from which and below, ITD effect is relevant. The fuse is in U1.8 volts.",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_ITD_SLOPE": {
+      "description": "Slope for correcting the voltage ITD controlled domain at low temperatures. The fuse is in U-7.16 (1/C).",
+      "width": 9,
+      "precision": "U-7.16",
+      "units": "1/C",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_ITD_CUTOFF_V2": {
+      "description": "The voltage from which and below, ITD effect is relevant (2nd point). The fuse is in U1.8 volts.",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_ITD_SLOPE2": {
+      "description": "Second slope for correcting the voltage ITD controlled domain at low temperatures. The fuse is in U-7.16 (1/C).",
+      "width": 9,
+      "precision": "U-7.16",
+      "units": "1/C",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_LEAK_EQ_V": {
+      "description": "Correction factor b for leakage w.r.t. temperature: e^(a(V-Vref)+b(T-Tref)+c(V-Vref)(T-Tref)). In U2.7 format.",
+      "width": 9,
+      "precision": "U2.7",
+      "units": "1/V",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_LEAK_EQ_T": {
+      "description": "Correction factor c for leakage w.r.t. voltage and temperature: e^(a(V-Vref)+b(T-Tref)+c(V-Vref)(T-Tref)). In U-4.13 format.",
+      "width": 9,
+      "precision": "U-4.13",
+      "units": "1/T",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_LEAK_EQ_VT": {
+      "description": "Correction factor a for leakage w.r.t. voltage: e^(a(V-Vref)+b(T-Tref)+c(V-Vref)(T-Tref)). In U-5.13 format.",
+      "width": 8,
+      "precision": "U-5.13",
+      "units": "1/VT",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_ACM_ENABLE": {
+      "description": "This fuse determines if the GT ACM is enabled (formerly GT_CEP_ENABLE).",
+      "width": 1,
+      "precision": "integer",
+      "units": "",
+      "default": "0",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GCD_MIN_BETA": {
+      "description": "Pcode derates VID to take CEP credit. Below this value CEP is disabled. Used in MBVR VID calculation.",
+      "width": 0,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GCD_MIN_ALPHA": {
+      "description": "Gap parameter to set the throttle threshold far from Vmin. Used in V_CEP_threshold = Vmin,all + alpha*Imax,all + offset.",
+      "width": 0,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GFX_TJ_MAX": {
+      "description": "Maximum Temperature GT die is allowed to reach, in 8-bit unsigned format.",
+      "width": 0,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GNOC_ITD_SLOPE2": {
+      "description": "GDIE NOC ITD slope correction (2nd point) for voltage ITD controlled domain at low temperatures. Fuse in U-7.16 (1/C). New for PTL.",
+      "width": 9,
+      "precision": "U-7.16",
+      "units": "1/C",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GNOC_LEAK_EQ_V": {
+      "description": "GDIE NOC correction factor b for leakage equation. In U2.7 format. New for PTL.",
+      "width": 9,
+      "precision": "U2.7",
+      "units": "1/V",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GNOC_LEAK_EQ_T": {
+      "description": "GDIE NOC correction factor c for leakage equation. In U-4.13 format. New for PTL.",
+      "width": 9,
+      "precision": "U-4.13",
+      "units": "1/T",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GNOC_LEAK_EQ_VT": {
+      "description": "GDIE NOC correction factor a for leakage equation. In U-5.13 format. New for PTL.",
+      "width": 8,
+      "precision": "U-5.13",
+      "units": "1/VT",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "MIN_GDIE_NOCPLL_RATIO": {
+      "description": "GDIE NOCPLL Min Frequency. PLL ratio is 2X of the CFC/C2C clk. New for PTL.",
+      "width": 8,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "4",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "MAX_GDIE_NOCPLL_RATIO": {
+      "description": "GDIE NOCPLL Max Frequency. PLL ratio is 2X of the CFC/C2C clk. New for PTL.",
+      "width": 8,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "42",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "MIN_GD2DPLL_RATIO": {
+      "description": "GD2DPLL Min Frequency. New for PTL.",
+      "width": 8,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "4",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "MAX_GD2DPLL_RATIO": {
+      "description": "GD2DPLL Max Frequency. New for PTL.",
+      "width": 8,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "42",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "BOOT_GDIE_NOCPLL_RATIO": {
+      "description": "GDIE NOCPLL Boot Frequency. PLL ratio is 2X of the CFC/C2C clk. New for PTL.",
+      "width": 8,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "22",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "BOOT_GD2DPLL_RATIO": {
+      "description": "GD2DPLL Boot Frequency. New for PTL.",
+      "width": 8,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "22",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_EBB_TRIM_VOLTAGE_LEVEL_0": {
+      "description": "Voltage Level for EBB TRIM voltage level select for GT arrays. New for PTL.",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_EBB_TRIM_VOLTAGE_LEVEL_1": {
+      "description": "Voltage Level for EBB TRIM voltage level select for GT arrays. New for PTL.",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_EBB_TRIM_VOLTAGE_LEVEL_2": {
+      "description": "Voltage Level for EBB TRIM voltage level select for GT arrays. New for PTL.",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_EBB_TRIM_VOLTAGE_LEVEL_3": {
+      "description": "Voltage Level for EBB TRIM voltage level select for GT arrays. New for PTL.",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "GT_EBB_TRIM_VOLTAGE_LEVEL_4": {
+      "description": "Voltage Level for EBB TRIM voltage level select for GT arrays. New for PTL.",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "gt pm integration.html"
+    },
+    "DE_VF_VOLTAGE_0": {
+      "description": "cdclk (DE) VF Voltage",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0xb3",
+      "domain": "de",
+      "doc_source": "Display PM Integration.html"
+    },
+    "DE_VF_VOLTAGE_1": {
+      "description": "cdclk (DE) VF Voltage",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0xb3",
+      "domain": "de",
+      "doc_source": "Display PM Integration.html"
+    },
+    "DE_VF_VOLTAGE_2": {
+      "description": "cdclk (DE) VF Voltage",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0xb3",
+      "domain": "de",
+      "doc_source": "Display PM Integration.html"
+    },
+    "DE_VF_VOLTAGE_3": {
+      "description": "cdclk (DE) VF Voltage",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0xb3",
+      "domain": "de",
+      "doc_source": "Display PM Integration.html"
+    },
+    "DE_VF_RATIO_0": {
+      "description": "cdclk (DE) VF Ratio",
+      "width": 7,
+      "precision": "24MHz",
+      "units": "MHz",
+      "default": "13",
+      "domain": "de",
+      "doc_source": "Display PM Integration.html"
+    },
+    "DE_VF_RATIO_1": {
+      "description": "cdclk (DE) VF Ratio",
+      "width": 7,
+      "precision": "24MHz",
+      "units": "MHz",
+      "default": "20",
+      "domain": "de",
+      "doc_source": "Display PM Integration.html"
+    },
+    "DE_VF_RATIO_2": {
+      "description": "cdclk (DE) VF Ratio",
+      "width": 7,
+      "precision": "24MHz",
+      "units": "MHz",
+      "default": "24",
+      "domain": "de",
+      "doc_source": "Display PM Integration.html"
+    },
+    "DE_VF_RATIO_3": {
+      "description": "cdclk (DE) VF Ratio",
+      "width": 7,
+      "precision": "24MHz",
+      "units": "MHz",
+      "default": "28",
+      "domain": "de",
+      "doc_source": "Display PM Integration.html"
+    },
+    "DE_FMAX": {
+      "description": "The maximum CDclk Display is supporting in this SKU. This frequency must be in the range of VF curve fuses. New for PTL.",
+      "width": 11,
+      "precision": "1MHz",
+      "units": "MHz",
+      "default": "692",
+      "domain": "de",
+      "doc_source": "Display PM Integration.html"
+    },
+    "DE_FMIN": {
+      "description": "The CDclk Display should support at Vmin. New for PTL.",
+      "width": 11,
+      "precision": "1MHz",
+      "units": "MHz",
+      "default": "308",
+      "domain": "de",
+      "doc_source": "Display PM Integration.html"
+    },
+    "DE_UNGATED_LEAK": {
+      "description": "DE Ungated Leakage. Leakage current in U11.5.6 amperes for DE at T=Tref and V=Vref.",
+      "width": 11,
+      "precision": "U5.6",
+      "units": "A",
+      "default": "96",
+      "domain": "de",
+      "doc_source": "Display PM Integration.html"
+    },
+    "DE_LEAK_MAX": {
+      "description": "DE maximum leakage current in U11.5.6 amperes.",
+      "width": 11,
+      "precision": "U5.6",
+      "units": "A",
+      "default": "",
+      "domain": "de",
+      "doc_source": "Display PM Integration.html"
+    },
+    "DE_LEAK_PIPE": {
+      "description": "DE leakage of one Pipe, in U11.5.6 amperes.",
+      "width": 11,
+      "precision": "U5.6",
+      "units": "A",
+      "default": "96",
+      "domain": "de",
+      "doc_source": "Display PM Integration.html"
+    },
+    "DE_UNGATED_CDYN_MAX": {
+      "description": "Active Cdyn for DE Ungated in U8.3.5 (nF) for DE.",
+      "width": 8,
+      "precision": "U3.5",
+      "units": "nF",
+      "default": "",
+      "domain": "de",
+      "doc_source": "Display PM Integration.html"
+    },
+    "DE_CDYN_PIPE": {
+      "description": "Active Cdyn in U8.3.5 (nF) for one DE Pipe.",
+      "width": 8,
+      "precision": "U3.5",
+      "units": "nF",
+      "default": "",
+      "domain": "de",
+      "doc_source": "Display PM Integration.html"
+    },
+    "DE_CDYN_MAX": {
+      "description": "Maximum Active Cdyn in U8.3.5 (nF) for DE.",
+      "width": 8,
+      "precision": "U3.5",
+      "units": "nF",
+      "default": "",
+      "domain": "de",
+      "doc_source": "Display PM Integration.html"
+    },
+    "DISPLAY_PIPEC_DIS": {
+      "description": "Display 3rd Pipe Disable. 0: Enabled, 1: Disabled.",
+      "width": 1,
+      "precision": "integer",
+      "units": "",
+      "default": "0",
+      "domain": "de",
+      "doc_source": "Display PM Integration.html"
+    },
+    "DISPLAY_PIPED_DIS": {
+      "description": "Display 4th Pipe Disable. 0: Enabled, 1: Disabled.",
+      "width": 1,
+      "precision": "integer",
+      "units": "",
+      "default": "0",
+      "domain": "de",
+      "doc_source": "Display PM Integration.html"
+    },
+    "IGD": {
+      "description": "Internal Graphics Disable. Used in resolving with DSKU. 0: Enabled, 1: Disabled.",
+      "width": 1,
+      "precision": "integer",
+      "units": "",
+      "default": "0",
+      "domain": "de",
+      "doc_source": "Display PM Integration.html"
+    },
+    "IA_CORE_RATIO_LIMIT": {
+      "description": "Max allowed core ratio (frequency multiplier)",
+      "width": 8,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "punit",
+      "doc_source": "punit_global_mas.html"
+    },
+    "MAX_NON_TURBO_RATIO": {
+      "description": "Max allowed non-turbo ratio",
+      "width": 8,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "punit",
+      "doc_source": "punit_global_mas.html"
+    },
+    "TURBO_DISABLE": {
+      "description": "Turbo disable flag",
+      "width": 1,
+      "precision": "integer",
+      "units": "",
+      "default": "0",
+      "domain": "punit",
+      "doc_source": "punit_global_mas.html"
+    },
+    "RING_RATIO_LIMIT": {
+      "description": "Max allowed ring ratio",
+      "width": 8,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "punit",
+      "doc_source": "punit_global_mas.html"
+    },
+    "FUSED_MAX_CORE_RATIO": {
+      "description": "Fused max core ratio",
+      "width": 8,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "punit",
+      "doc_source": "punit_global_mas.html"
+    }
+  },
+  "NVL": {
+    "GT_P0_RATIO": {
+      "description": "GT maximal frequency",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "40",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_P1_RATIO": {
+      "description": "Guaranteed non-turbo frequency",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "8",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_PN_RATIO": {
+      "description": "Lowest requested p-state can be equal or greater than the real minimum (fmax @ Vmin)",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "2",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_MIN_RATIO": {
+      "description": "Minimum ratio for GT domain",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "2",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GTPRESENT": {
+      "description": "Fuse hosted in SGUnit, that allows BIOS to know whether to trigger GT wake.",
+      "width": 0,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GDIE_DISABLE": {
+      "description": "Punit fuse to determine whether to bring Graphics Die ON and out of reset. MTL legacy.",
+      "width": 0,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_LEAK": {
+      "description": "Leakage current when GT is in RC0, in U11.5.6 amperes, measured at T=Tref and V=Vref.",
+      "width": 12,
+      "precision": "U6.6",
+      "units": "A",
+      "default": "320",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_CDYN_MAX": {
+      "description": "Maximal dynamic capacitance when GT is in RC0, at Vref and Tref in U10.5.5 (nF).",
+      "width": 10,
+      "precision": "U5.5",
+      "units": "nF",
+      "default": "57",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_CDYN_V_CORRECTION": {
+      "description": "Cdyn correction with respect to the voltage. Cdyn=(V-Vref)*correction+Cdyn_max. In U2.5 format.",
+      "width": 7,
+      "precision": "U0.7",
+      "units": "nF/V",
+      "default": "1",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_CDYN_T_CORRECTION": {
+      "description": "Cdyn correction with respect to the temperature.",
+      "width": 7,
+      "precision": "",
+      "units": "",
+      "default": "1",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_VF_RATIO_0": {
+      "description": "Ratio for ratio/voltage points for power plane.",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x10",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "VF_RATIO_0": {
+      "description": "Ratio for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x10",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_VF_RATIO_1": {
+      "description": "Ratio for ratio/voltage points for power plane.",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x18",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "VF_RATIO_1": {
+      "description": "Ratio for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x18",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_VF_RATIO_2": {
+      "description": "Ratio for ratio/voltage points for power plane.",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x20",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "VF_RATIO_2": {
+      "description": "Ratio for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x20",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_VF_RATIO_3": {
+      "description": "Ratio for ratio/voltage points for power plane.",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "VF_RATIO_3": {
+      "description": "Ratio for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_VF_RATIO_4": {
+      "description": "Ratio for ratio/voltage points for power plane.",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "VF_RATIO_4": {
+      "description": "Ratio for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_VF_RATIO_5": {
+      "description": "Ratio for ratio/voltage points for power plane.",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "VF_RATIO_5": {
+      "description": "Ratio for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 6,
+      "precision": "50MHz",
+      "units": "MHz",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_VF_VOLTAGE_0": {
+      "description": "Voltage for ratio/voltage points for power plane",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x80",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "VF_VOLTAGE_0": {
+      "description": "Voltage for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x80",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_VF_VOLTAGE_1": {
+      "description": "Voltage for ratio/voltage points for power plane",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0xC0",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "VF_VOLTAGE_1": {
+      "description": "Voltage for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0xC0",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_VF_VOLTAGE_2": {
+      "description": "Voltage for ratio/voltage points for power plane",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x100",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "VF_VOLTAGE_2": {
+      "description": "Voltage for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x100",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_VF_VOLTAGE_3": {
+      "description": "Voltage for ratio/voltage points for power plane",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "VF_VOLTAGE_3": {
+      "description": "Voltage for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_VF_VOLTAGE_4": {
+      "description": "Voltage for ratio/voltage points for power plane",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "VF_VOLTAGE_4": {
+      "description": "Voltage for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_VF_VOLTAGE_5": {
+      "description": "Voltage for ratio/voltage points for power plane",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "VF_VOLTAGE_5": {
+      "description": "Voltage for ratio/voltage points for power plane. (GT domain alias)",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_ITD_CUTOFF_V": {
+      "description": "The voltage from which and below, ITD effect is relevant. The fuse is in U9.1.8 volts.",
+      "width": 0,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_ITD_SLOPE": {
+      "description": "Slope for correcting the voltage ITD controlled domain at low temperatures. The fuse is in U-8.16 (1/C).",
+      "width": 0,
+      "precision": "U-8.16",
+      "units": "1/C",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_ITD_CUTOFF_V2": {
+      "description": "Second voltage cutoff for ITD effect. The fuse is in U9.1.8 volts.",
+      "width": 0,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_ITD_SLOPE2": {
+      "description": "Second slope for voltage ITD correction at low temperatures. The fuse is in U-8.16 (1/C).",
+      "width": 0,
+      "precision": "U-8.16",
+      "units": "1/C",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_LEAK_EQ_V": {
+      "description": "Correction factor b for leakage w.r.t. temperature: e^(a(V-Vref)+b(T-Tref)+c(V-Vref)(T-Tref)). In U-4.13 format.",
+      "width": 0,
+      "precision": "U-4.13",
+      "units": "1/V",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_LEAK_EQ_T": {
+      "description": "Correction factor c for leakage w.r.t. voltage and temperature. In U-5.13 format.",
+      "width": 0,
+      "precision": "U-5.13",
+      "units": "1/T",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_LEAK_EQ_VT": {
+      "description": "Correction factor a for leakage w.r.t. voltage. In U2.7 format.",
+      "width": 0,
+      "precision": "U2.7",
+      "units": "1/VT",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GT_ACM_ENABLE": {
+      "description": "This fuse determines if the GT ACM is enabled (formerly GT_CEP_ENABLE).",
+      "width": 1,
+      "precision": "integer",
+      "units": "",
+      "default": "0",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GCD_MIN_BETA": {
+      "description": "Pcode derates VID to take CEP credit. Below this value CEP is disabled. Used in MBVR VID calculation.",
+      "width": 0,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GCD_MIN_ALPHA": {
+      "description": "Gap parameter to set the throttle threshold far from Vmin. Used in V_CEP_threshold = Vmin,all + alpha*Imax,all + offset.",
+      "width": 0,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "GFX_TJ_MAX": {
+      "description": "Maximum Temperature GT die is allowed to reach, in 8-bit unsigned format.",
+      "width": 0,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "gt",
+      "doc_source": "GT PM Integration.html"
+    },
+    "DE_CDYN_MAX": {
+      "description": "Active Cdyn in U8.3.5 (nF) for DE. Maximal value (e.g. all pipes up).",
+      "width": 8,
+      "precision": "U3.5",
+      "units": "nF",
+      "default": "1.5",
+      "domain": "de",
+      "doc_source": "dispss_pm_integration_has.html"
+    },
+    "DE_CDYN_PIPE": {
+      "description": "Cdyn per pipe in U8.3.5 (nF) for DE.",
+      "width": 8,
+      "precision": "U3.5",
+      "units": "nF",
+      "default": "0.3125",
+      "domain": "de",
+      "doc_source": "dispss_pm_integration_has.html"
+    },
+    "DE_CDYN_UNGATED": {
+      "description": "Cdyn in base configuration (Ungated domain) in U8.3.5 (nF) for DE with zero active pipes.",
+      "width": 8,
+      "precision": "U3.5",
+      "units": "nF",
+      "default": "0.84375",
+      "domain": "de",
+      "doc_source": "dispss_pm_integration_has.html"
+    },
+    "DE_LEAK_MAX": {
+      "description": "DE Max leakage. Leakage current in U11.5.6 amperes for DE on SA power plane at T=Tref and V=Vref.",
+      "width": 11,
+      "precision": "U5.6",
+      "units": "A",
+      "default": "0.40625",
+      "domain": "de",
+      "doc_source": "dispss_pm_integration_has.html"
+    },
+    "DE_LEAK_PIPE": {
+      "description": "DE leakage per pipe. Leakage current in U11.5.6 amperes for DE on SA power plane at T=Tref and V=Vref.",
+      "width": 11,
+      "precision": "U5.6",
+      "units": "A",
+      "default": "0.109375",
+      "domain": "de",
+      "doc_source": "dispss_pm_integration_has.html"
+    },
+    "DE_LEAK_UNGATED": {
+      "description": "DE leakage in base configuration (Ungated domain). Leakage current in U11.5.6 amperes for DE on SA power plane at T=Tref and V=Vref.",
+      "width": 11,
+      "precision": "U5.6",
+      "units": "A",
+      "default": "0.046875",
+      "domain": "de",
+      "doc_source": "dispss_pm_integration_has.html"
+    },
+    "DE_VF_RATIO_0": {
+      "description": "cdclk (DE) ratio supported by DE. CDCLK Frequency VF_RATIO_0 = 408MHz.",
+      "width": 8,
+      "precision": "24MHz",
+      "units": "MHz",
+      "default": "17",
+      "domain": "de",
+      "doc_source": "dispss_pm_integration_has.html"
+    },
+    "DE_VF_RATIO_1": {
+      "description": "cdclk (DE) ratio supported by DE. CDCLK Frequency VF_RATIO_1 = 624MHz.",
+      "width": 8,
+      "precision": "24MHz",
+      "units": "MHz",
+      "default": "26",
+      "domain": "de",
+      "doc_source": "dispss_pm_integration_has.html"
+    },
+    "DE_VF_RATIO_2": {
+      "description": "cdclk (DE) ratio supported by DE. CDCLK Frequency VF_RATIO_2 = 696MHz.",
+      "width": 8,
+      "precision": "24MHz",
+      "units": "MHz",
+      "default": "29",
+      "domain": "de",
+      "doc_source": "dispss_pm_integration_has.html"
+    },
+    "DE_VF_RATIO_3": {
+      "description": "cdclk (DE) ratio supported by DE. CDCLK Frequency VF_RATIO_3 = 792MHz.",
+      "width": 8,
+      "precision": "24MHz",
+      "units": "MHz",
+      "default": "33",
+      "domain": "de",
+      "doc_source": "dispss_pm_integration_has.html"
+    },
+    "DE_VF_VOLTAGE_0": {
+      "description": "cdclk (DE) domain voltage corresponding to VF_RATIO_0.",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0.60546875",
+      "domain": "de",
+      "doc_source": "dispss_pm_integration_has.html"
+    },
+    "DE_VF_VOLTAGE_1": {
+      "description": "cdclk (DE) domain voltage corresponding to VF_RATIO_1.",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0.625",
+      "domain": "de",
+      "doc_source": "dispss_pm_integration_has.html"
+    },
+    "DE_VF_VOLTAGE_2": {
+      "description": "cdclk (DE) domain voltage corresponding to VF_RATIO_2.",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0.6796875",
+      "domain": "de",
+      "doc_source": "dispss_pm_integration_has.html"
+    },
+    "DE_VF_VOLTAGE_3": {
+      "description": "cdclk (DE) domain voltage corresponding to VF_RATIO_3.",
+      "width": 9,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0.7265625",
+      "domain": "de",
+      "doc_source": "dispss_pm_integration_has.html"
+    },
+    "DISABLE_DISPLAY_PARTIAL_SLEEP": {
+      "description": "Display Partial Sleep Disable. 0: Enabled, 1: Disabled.",
+      "width": 1,
+      "precision": "integer",
+      "units": "",
+      "default": "0",
+      "domain": "de",
+      "doc_source": "dispss_pm_integration_has.html"
+    },
+    "SA_DLVR_DE_SUPPORTED": {
+      "description": "SA DLVR Support for DE. 0: DLVR Not supported, 1: DLVR supported.",
+      "width": 1,
+      "precision": "integer",
+      "units": "",
+      "default": "0",
+      "domain": "de",
+      "doc_source": "dispss_pm_integration_has.html"
+    },
+    "DISPLAY_PIPEC_DIS": {
+      "description": "Display 3rd Pipe Disable. 0: Enabled, 1: Disabled. Reserved (Unused in NVL).",
+      "width": 1,
+      "precision": "integer",
+      "units": "",
+      "default": "0",
+      "domain": "de",
+      "doc_source": "dispss_pm_integration_has.html"
+    },
+    "DISPLAY_PIPED_DIS": {
+      "description": "Display 4th Pipe Disable. 0: Enabled, 1: Disabled.",
+      "width": 1,
+      "precision": "integer",
+      "units": "",
+      "default": "0",
+      "domain": "de",
+      "doc_source": "dispss_pm_integration_has.html"
+    },
+    "IGD": {
+      "description": "Internal Graphics Disable. Used in resolving with DSKU. 0: Enabled, 1: Disabled.",
+      "width": 1,
+      "precision": "integer",
+      "units": "",
+      "default": "0",
+      "domain": "de",
+      "doc_source": "dispss_pm_integration_has.html"
+    },
+    "CUTOFF_V": {
+      "description": "ITD cutoff voltage. Per IA CCP (ACP), CCF (Ring), GT, NPU, Rest of SA, Hub Atom (dedicated), DLVRs.",
+      "width": 0,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "itd",
+      "doc_source": "thermal management.html"
+    },
+    "CUTOFF_V2": {
+      "description": "Second ITD cutoff voltage. Per IA CCP (ACP), CCF (Ring), GT, NPU, Rest of SA, Hub Atom (dedicated), DLVRs.",
+      "width": 0,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "itd",
+      "doc_source": "thermal management.html"
+    },
+    "SLOPE": {
+      "description": "ITD slope. Per IA CCP (ACP), CCF (Ring), GT, NPU, Rest of SA, Hub Atom (dedicated), DLVRs.",
+      "width": 0,
+      "precision": "U-8.16",
+      "units": "1/C",
+      "default": "",
+      "domain": "itd",
+      "doc_source": "thermal management.html"
+    },
+    "SLOPE2": {
+      "description": "Second ITD slope. Per IA CCP (ACP), CCF (Ring), GT, NPU, Rest of SA, Hub Atom (dedicated), DLVRs.",
+      "width": 0,
+      "precision": "U-8.16",
+      "units": "1/C",
+      "default": "",
+      "domain": "itd",
+      "doc_source": "thermal management.html"
+    },
+    "FLOOR_VOLTAGE": {
+      "description": "ITD floor voltage. Per IA CCP (ACP), CCF (Ring), GT, NPU, Rest of SA, Hub Atom (dedicated), DLVRs.",
+      "width": 0,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "itd",
+      "doc_source": "thermal management.html"
+    },
+    "ITD_CUTOFF_TJ": {
+      "description": "ITD cutoff temperature. One fuse per die (C-die, Hub die). Value dependent on characterization temperature, typically TJMAX.",
+      "width": 0,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "itd",
+      "doc_source": "thermal management.html"
+    },
+    "MIN_TEMPERATURE": {
+      "description": "Minimum temperature fuse. One fuse per die (C-die, Hub die). All die have same value.",
+      "width": 0,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "itd",
+      "doc_source": "thermal management.html"
+    },
+    "TRUE_TD_ENABLE": {
+      "description": "Enable true thermal design. One fuse per die (C-die, Hub die).",
+      "width": 0,
+      "precision": "integer",
+      "units": "",
+      "default": "",
+      "domain": "itd",
+      "doc_source": "thermal management.html"
+    },
+    "ITD_SLOPE_ABOVE_CUTOFF_TJ": {
+      "description": "Slope above cutoff TJ for ITD correction. One fuse for all Atom in a die, one for all Big cores, one for CCF, NPU, one for rest SA domain, one for GT, Hub Atom (dedicated).",
+      "width": 0,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "itd",
+      "doc_source": "thermal management.html"
+    }
+  },
+  "GFC": {
+    "FUSES_CORE_IA_P0_RATIO": {
+      "description": "Core P0 ratio",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_IA_P1_RATIO": {
+      "description": "Core P1 ratio",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_IA_PN_RATIO": {
+      "description": "Core PN ratio",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_IA_MIN_RATIO": {
+      "description": "Core minimum ratio",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_IA_P0_RATIO_AVX256_DELTA": {
+      "description": "AVX256 delta for P0 ratio",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_IA_P0_RATIO_AVX512_DELTA": {
+      "description": "AVX512 delta for P0 ratio",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_IA_VF_RATIO": {
+      "description": "VF curve frequency points array (NUM_VF_CURVE_FUSED_PTS=5)",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_CORE_IA_VF_VOLTAGE": {
+      "description": "VF curve voltage points array (NUM_VF_CURVE_FUSED_PTS=5)",
+      "width": 16,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_IA_AVX256_VF_DELTA": {
+      "description": "AVX256 delta for VF curve array (NUM_VF_CURVE_FUSED_PTS=5)",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_IA_AVX512_VF_DELTA": {
+      "description": "AVX512 delta for VF curve array (NUM_VF_CURVE_FUSED_PTS=5)",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_IA_REFERENCE_VOLTAGE": {
+      "description": "Reference voltage for ITD",
+      "width": 16,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_IA_ITD_CUTOFF_V2": {
+      "description": "ITD cutoff voltage 2",
+      "width": 16,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_IA_ITD_CUTOFF_V": {
+      "description": "ITD cutoff voltage",
+      "width": 16,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_IA_ITD_SLOPE2": {
+      "description": "ITD slope 2",
+      "width": 8,
+      "precision": "U-7.15",
+      "units": "1/C",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_IA_ITD_SLOPE": {
+      "description": "ITD slope",
+      "width": 8,
+      "precision": "U-7.15",
+      "units": "1/C",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_ITD_CUTOFF_TJ": {
+      "description": "ITD cutoff temperature",
+      "width": 7,
+      "precision": "U7.0",
+      "units": "°C",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_CORE_IA_CDYN_MAX": {
+      "description": "Maximum Cdyn",
+      "width": 16,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_IA_CDYN_V_CORRECTION": {
+      "description": "Cdyn voltage correction",
+      "width": 8,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_IA_LEAK_EQ_T": {
+      "description": "Leakage equation temperature",
+      "width": 16,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_IA_LEAK_EQ_VT": {
+      "description": "Leakage equation VT",
+      "width": 8,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_IA_LEAK_EQ_V": {
+      "description": "Leakage equation voltage",
+      "width": 16,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_IA_LEAK": {
+      "description": "Leakage",
+      "width": 16,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_IA_REFERENCE_TEMPERATURE": {
+      "description": "Reference temperature",
+      "width": 8,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_FIVR_PS_THRESHOLDS_IA_CORE_PS0_FER": {
+      "description": "FIVR PS0 threshold FER",
+      "width": 8,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "fivr",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_FIVR_PS_THRESHOLDS_IA_CORE_PS0_FSL": {
+      "description": "FIVR PS0 threshold FSL",
+      "width": 8,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "fivr",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_FIVR_PS_THRESHOLDS_IA_CORE_PS1_THRESHOLD": {
+      "description": "FIVR PS1 threshold",
+      "width": 8,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "fivr",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_FIVR_PS_THRESHOLDS_IA_CORE_PS2_THRESHOLD": {
+      "description": "FIVR PS2 threshold",
+      "width": 8,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "fivr",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_FIVR_PS_THRESHOLDS_IA_CORE_PS3_THRESHOLD": {
+      "description": "FIVR PS3 threshold",
+      "width": 8,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "fivr",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "FUSES_FIVR_PS_THRESHOLDS_IA_CORE_PS4_THRESHOLD": {
+      "description": "FIVR PS4 threshold",
+      "width": 8,
+      "precision": "",
+      "units": "",
+      "default": "",
+      "domain": "fivr",
+      "doc_source": "Acode_kernel_services_FAS.docx"
+    },
+    "BOOT_RATIO_FUSE": {
+      "description": "WP1 boot fuses - MCLK ratio in 16.67 MHz",
+      "width": 9,
+      "precision": "16.67MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "punit",
+      "doc_source": "GFC PM HAS.docx"
+    },
+    "BOOT_VID_FUSE": {
+      "description": "WP1 boot fuses - Core Ceiling Voltage",
+      "width": 11,
+      "precision": "2.5mV step",
+      "units": "V",
+      "default": "",
+      "domain": "punit",
+      "doc_source": "GFC PM HAS.docx"
+    },
+    "BOOT_VF_CURVE_INDEX_FUSE": {
+      "description": "WP3 - TypeA - VF_CURVE_INDEX",
+      "width": 4,
+      "precision": "integer",
+      "units": "",
+      "default": "",
+      "domain": "punit",
+      "doc_source": "GFC PM HAS.docx"
+    },
+    "BOOT_LEAKAGE_INDEX_FUSE": {
+      "description": "WP3 - TypeA - 0 if no default budget, 1 default budget (Auto Wake Up)",
+      "width": 1,
+      "precision": "integer",
+      "units": "",
+      "default": "",
+      "domain": "punit",
+      "doc_source": "GFC PM HAS.docx"
+    },
+    "BOOT_CDYN_FLOOR_INDEX_FUSE": {
+      "description": "WP3 - Type A - Minimum Cdyn needed to keep the core functional, Copy to Short_Cdyn_index",
+      "width": 8,
+      "precision": "integer",
+      "units": "",
+      "default": "",
+      "domain": "punit",
+      "doc_source": "GFC PM HAS.docx"
+    },
+    "BOOT_ICC_LIMIT_FUSE": {
+      "description": "WP3 - Type B - Minimum Current to keep the core functional",
+      "width": 8,
+      "precision": "1/255*FIVR_ICCMAX",
+      "units": "A",
+      "default": "0xFF",
+      "domain": "punit",
+      "doc_source": "GFC PM HAS.docx"
+    },
+    "BOOT_VCCIN_GRANT_FUSE": {
+      "description": "WP3 - Type B - FIVR/DLVR Input Target Voltage Hint",
+      "width": 11,
+      "precision": "2.5mV step",
+      "units": "V",
+      "default": "0x7FF",
+      "domain": "punit",
+      "doc_source": "GFC PM HAS.docx"
+    },
+    "BOOT_NUM_DOMIN_ACTIE_ALLOWED_FUSE": {
+      "description": "WP3 - Type B/A - 0 if no default budget, 1 default budget (Auto Wake Up)",
+      "width": 1,
+      "precision": "integer",
+      "units": "",
+      "default": "1",
+      "domain": "punit",
+      "doc_source": "GFC PM HAS.docx"
+    },
+    "IA_AGING_DELTA_VF_VOLTAGE_0": {
+      "description": "Core full aging voltage values per VF point 0 to be reduced from full GB VF",
+      "width": 6,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "bigcore",
+      "doc_source": "Dynamic Aging Control HAS.docx"
+    },
+    "IA_AGING_DELTA_VF_VOLTAGE_1": {
+      "description": "Core full aging voltage values per VF point 1 to be reduced from full GB VF",
+      "width": 6,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "bigcore",
+      "doc_source": "Dynamic Aging Control HAS.docx"
+    },
+    "IA_AGING_DELTA_VF_VOLTAGE_2": {
+      "description": "Core full aging voltage values per VF point 2 to be reduced from full GB VF",
+      "width": 6,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "bigcore",
+      "doc_source": "Dynamic Aging Control HAS.docx"
+    },
+    "IA_AGING_DELTA_VF_VOLTAGE_3": {
+      "description": "Core full aging voltage values per VF point 3 to be reduced from full GB VF",
+      "width": 6,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "bigcore",
+      "doc_source": "Dynamic Aging Control HAS.docx"
+    },
+    "IA_AGING_DELTA_VF_VOLTAGE_4": {
+      "description": "Core full aging voltage values per VF point 4 to be reduced from full GB VF",
+      "width": 6,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "bigcore",
+      "doc_source": "Dynamic Aging Control HAS.docx"
+    },
+    "IA_AGING_DELTA_VF_VOLTAGE_5": {
+      "description": "Core full aging voltage values per VF point 5 to be reduced from full GB VF",
+      "width": 6,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "bigcore",
+      "doc_source": "Dynamic Aging Control HAS.docx"
+    },
+    "IA_AGING_DELTA_VF_VOLTAGE_6": {
+      "description": "Core full aging voltage values per VF point 6 to be reduced from full GB VF",
+      "width": 6,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "bigcore",
+      "doc_source": "Dynamic Aging Control HAS.docx"
+    },
+    "IA_AGING_DELTA_VF_VOLTAGE_7": {
+      "description": "Core full aging voltage values per VF point 7 to be reduced from full GB VF",
+      "width": 6,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "bigcore",
+      "doc_source": "Dynamic Aging Control HAS.docx"
+    },
+    "IA_AGING_DELTA_VF_VOLTAGE_8": {
+      "description": "Core full aging voltage values per VF point 8 to be reduced from full GB VF",
+      "width": 6,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "bigcore",
+      "doc_source": "Dynamic Aging Control HAS.docx"
+    },
+    "IA_AGING_DELTA_VF_VOLTAGE_9": {
+      "description": "Core full aging voltage values per VF point 9 to be reduced from full GB VF",
+      "width": 6,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "bigcore",
+      "doc_source": "Dynamic Aging Control HAS.docx"
+    },
+    "IA_AGING_DELTA_VF_VOLTAGE_10": {
+      "description": "Core full aging voltage values per VF point 10 to be reduced from full GB VF",
+      "width": 6,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "bigcore",
+      "doc_source": "Dynamic Aging Control HAS.docx"
+    },
+    "IA_AGING_DELTA_VF_VOLTAGE_11": {
+      "description": "Core full aging voltage values per VF point 11 to be reduced from full GB VF",
+      "width": 6,
+      "precision": "U1.8",
+      "units": "V",
+      "default": "0x0",
+      "domain": "bigcore",
+      "doc_source": "Dynamic Aging Control HAS.docx"
+    },
+    "AGING_GB_SLOPE1": {
+      "description": "Slope used to calculate every aging GB per voltage (slope 1)",
+      "width": 22,
+      "precision": "U7.15",
+      "units": "1/mV",
+      "default": "0x0",
+      "domain": "bigcore",
+      "doc_source": "Dynamic Aging Control HAS.docx"
+    },
+    "AGING_GB_SLOPE2": {
+      "description": "Slope used to calculate every aging GB per voltage (slope 2)",
+      "width": 22,
+      "precision": "U7.15",
+      "units": "1/mV",
+      "default": "0x0",
+      "domain": "bigcore",
+      "doc_source": "Dynamic Aging Control HAS.docx"
+    },
+    "AGING_VOLTAGE_COMPENSATION_AT_CROSS_POINT": {
+      "description": "Voltage intercept point (VX) between Slope0/Slope1 linear lines",
+      "width": 11,
+      "precision": "U11.0",
+      "units": "",
+      "default": "0x0",
+      "domain": "bigcore",
+      "doc_source": "Dynamic Aging Control HAS.docx"
+    },
+    "ITD_FLOOR_V": {
+      "description": "The ITD voltage compensation which below it the value is clipped to the same value (AcodeFuse)",
+      "width": 8,
+      "precision": "U0.8",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Thermal HAS.docx"
+    },
+    "FUSES_IA_ITD_FLOOR_V": {
+      "description": "The ITD voltage compensation which below it the value is clipped to the same value (PcodeFuse)",
+      "width": 8,
+      "precision": "U0.8",
+      "units": "V",
+      "default": "",
+      "domain": "punit",
+      "doc_source": "Thermal HAS.docx"
+    },
+    "DTD_NSALERT_THR_0": {
+      "description": "High threshold for Throttle Hammer detection",
+      "width": 9,
+      "precision": "U8.1+64",
+      "units": "°C",
+      "default": "0x0",
+      "domain": "bigcore",
+      "doc_source": "Thermal HAS.docx"
+    },
+    "DTD_NSALERT_THR_1": {
+      "description": "Low threshold for Throttle Hammer detection",
+      "width": 9,
+      "precision": "U8.1+64",
+      "units": "°C",
+      "default": "0x0",
+      "domain": "bigcore",
+      "doc_source": "Thermal HAS.docx"
+    },
+    "IA_ITD_CUTOFF_V": {
+      "description": "The voltage from which and below, ITD effect is relevant",
+      "width": 16,
+      "precision": "U9.7",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Thermal HAS.docx"
+    },
+    "IA_ITD_CUTOFF_V2": {
+      "description": "Second voltage cutoff for new ITD algorithm",
+      "width": 16,
+      "precision": "U9.7",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Thermal HAS.docx"
+    },
+    "IA_ITD_SLOPE": {
+      "description": "Slope for correcting the voltage ITD controlled domain at low temperatures",
+      "width": 22,
+      "precision": "U-7.15",
+      "units": "1/C",
+      "default": "",
+      "domain": "punit",
+      "doc_source": "Thermal HAS.docx"
+    },
+    "IA_ITD_SLOPE2": {
+      "description": "Second slope for new ITD algorithm",
+      "width": 22,
+      "precision": "U-7.15",
+      "units": "1/C",
+      "default": "",
+      "domain": "punit",
+      "doc_source": "Thermal HAS.docx"
+    },
+    "ITD_SLOPE_ABOVE_CUTOFF_TJ": {
+      "description": "Perform temperature dependent correction above TJMAX (ITD_CUTOFF_TJ) using a new slope",
+      "width": 8,
+      "precision": "U3.5",
+      "units": "1/C",
+      "default": "0x0",
+      "domain": "bigcore",
+      "doc_source": "Thermal HAS.docx"
+    },
+    "ITD_CUTOFF_TJ": {
+      "description": "The temperature from which and below, ITD effect is relevant",
+      "width": 7,
+      "precision": "U7.0",
+      "units": "°C",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Thermal HAS.docx"
+    },
+    "MIN_ACCURATE_TEMP": {
+      "description": "The minimal reliable temperature DTS can report; if the coldest sensor value is below this number, Acode uses ITD_MIN_OVERRIDE_TEMP for ITD calculations",
+      "width": 7,
+      "precision": "U6.0",
+      "units": "°C",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Thermal HAS.docx"
+    },
+    "ITD_MIN_OVERRIDE_TEMP": {
+      "description": "The temperature to be used for ITD calculations when the coldest DTS sensor value is below MIN_ACCURATE_TEMP",
+      "width": 7,
+      "precision": "U6.0",
+      "units": "°C",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Thermal HAS.docx"
+    },
+    "IA_MLCSSA_VF_VOLTAGE_0": {
+      "description": "MLCSSA dedicated VF-curve voltage point 0 (Server Only), mapped to ACODE_SPARE_WORD_0[8:0]",
+      "width": 9,
+      "precision": "",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_MLCSSA_VF_VOLTAGE_1": {
+      "description": "MLCSSA dedicated VF-curve voltage point 1 (Server Only), mapped to ACODE_SPARE_WORD_0[24:16]",
+      "width": 9,
+      "precision": "",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_MLCSSA_VF_VOLTAGE_2": {
+      "description": "MLCSSA dedicated VF-curve voltage point 2 (Server Only), mapped to ACODE_SPARE_WORD_1[8:0]",
+      "width": 9,
+      "precision": "",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_MLCSSA_VF_VOLTAGE_3": {
+      "description": "MLCSSA dedicated VF-curve voltage point 3 (Server Only), mapped to ACODE_SPARE_WORD_1[24:16]",
+      "width": 9,
+      "precision": "",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_MLCSSA_VF_VOLTAGE_4": {
+      "description": "MLCSSA dedicated VF-curve voltage point 4 (Server Only), mapped to ACODE_SPARE_WORD_2[8:0]",
+      "width": 9,
+      "precision": "",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_MLCSSA_VF_VOLTAGE_5": {
+      "description": "MLCSSA dedicated VF-curve voltage point 5 (Server Only), mapped to ACODE_SPARE_WORD_2[24:16]",
+      "width": 9,
+      "precision": "",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_MLCSSA_VF_VOLTAGE_6": {
+      "description": "MLCSSA dedicated VF-curve voltage point 6 (Server Only), mapped to ACODE_SPARE_WORD_3[8:0]",
+      "width": 9,
+      "precision": "",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_MLCSSA_VF_VOLTAGE_7": {
+      "description": "MLCSSA dedicated VF-curve voltage point 7 (Server Only), mapped to ACODE_SPARE_WORD_3[24:16]",
+      "width": 9,
+      "precision": "",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_MLCSSA_VF_VOLTAGE_8": {
+      "description": "MLCSSA dedicated VF-curve voltage point 8 (Server Only), mapped to ACODE_SPARE_WORD_4[8:0]",
+      "width": 9,
+      "precision": "",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_MLCSSA_VF_VOLTAGE_9": {
+      "description": "MLCSSA dedicated VF-curve voltage point 9 (Server Only), mapped to ACODE_SPARE_WORD_4[24:16]",
+      "width": 9,
+      "precision": "",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_MLCSSA_VF_VOLTAGE_10": {
+      "description": "MLCSSA dedicated VF-curve voltage point 10 (Server Only), mapped to ACODE_SPARE_WORD_5[8:0]",
+      "width": 9,
+      "precision": "",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_MLCSSA_VF_VOLTAGE_11": {
+      "description": "MLCSSA dedicated VF-curve voltage point 11 (Server Only), mapped to ACODE_SPARE_WORD_5[24:16]",
+      "width": 9,
+      "precision": "",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_MLCSSA_ITD_CUTOFF_V": {
+      "description": "MLCSSA ITD cutoff voltage (Server Only), mapped to ACODE_SPARE_WORD_6[15:0]",
+      "width": 16,
+      "precision": "",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_MLCSSA_ITD_CUTOFF_V2": {
+      "description": "MLCSSA ITD cutoff voltage 2 (Server Only), mapped to ACODE_SPARE_WORD_6[31:16]",
+      "width": 16,
+      "precision": "",
+      "units": "V",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_MLCSSA_ITD_SLOPE": {
+      "description": "MLCSSA ITD slope (Server Only), mapped to ACODE_SPARE_WORD_7[8:0]",
+      "width": 9,
+      "precision": "",
+      "units": "1/C",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_MLCSSA_ITD_SLOPE2": {
+      "description": "MLCSSA ITD slope 2 (Server Only), mapped to ACODE_SPARE_WORD_7[24:16]",
+      "width": 9,
+      "precision": "",
+      "units": "1/C",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "CORE_IA_P0_RATIO": {
+      "description": "Core IA P0 ratio (Acode fuse)",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_P0_RATIO_AVX256": {
+      "description": "IA P0 ratio for AVX256 (Acode fuse)",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_P0_RATIO_AVX512": {
+      "description": "IA P0 ratio for AVX512 (Acode fuse)",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_P0_RATIO_TMUL": {
+      "description": "IA P0 ratio for TMUL (Acode fuse)",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_MIN_RATIO": {
+      "description": "IA minimum ratio (Acode fuse)",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_BASE_VF_RATIO_0": {
+      "description": "IA base VF curve ratio point 0",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_BASE_VF_RATIO_1": {
+      "description": "IA base VF curve ratio point 1",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_BASE_VF_RATIO_2": {
+      "description": "IA base VF curve ratio point 2",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_BASE_VF_RATIO_3": {
+      "description": "IA base VF curve ratio point 3",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_BASE_VF_RATIO_4": {
+      "description": "IA base VF curve ratio point 4",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_BASE_VF_RATIO_5": {
+      "description": "IA base VF curve ratio point 5",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_BASE_VF_RATIO_6": {
+      "description": "IA base VF curve ratio point 6",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_BASE_VF_RATIO_7": {
+      "description": "IA base VF curve ratio point 7",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_BASE_VF_RATIO_8": {
+      "description": "IA base VF curve ratio point 8",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_BASE_VF_RATIO_9": {
+      "description": "IA base VF curve ratio point 9",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_BASE_VF_RATIO_10": {
+      "description": "IA base VF curve ratio point 10",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    },
+    "IA_BASE_VF_RATIO_11": {
+      "description": "IA base VF curve ratio point 11",
+      "width": 8,
+      "precision": "100MHz",
+      "units": "MHz",
+      "default": "",
+      "domain": "bigcore",
+      "doc_source": "Acode_Pstate_FAS.docx"
+    }
+  }
+}

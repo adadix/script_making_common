@@ -16,7 +16,7 @@ from PyQt5.QtWidgets import (
     QCheckBox, QLineEdit, QTableWidget, QTableWidgetItem,
     QMessageBox, QComboBox
 )
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtGui import QColor
 
 
@@ -155,7 +155,8 @@ def _build_registers_table() -> QTableWidget:
 # ---------------------------------------------------------------------------
 
 def build_registers_tab_widget(records: list, platform_display: str,
-                                timestamp: str, hw_status: str = '\u26aa cached'):
+                                timestamp: str, hw_status: str = '\u26aa cached',
+                                spec_missing_info=None):
     """Build the Discovered Registers tab: filter bar + table + export button.
 
     Uses _build_info_bar, _build_filter_combos, and _build_registers_table
@@ -170,6 +171,62 @@ def build_registers_tab_widget(records: list, platform_display: str,
     active_cnt = sum(1 for r in records if r.get('active'))
     info_lbl = _build_info_bar(records, platform_display, hw_status, timestamp)
     layout.addWidget(info_lbl)
+
+    # ── Spec-DB missing banner (shown only when platform has no HAS data) ─
+    if spec_missing_info:
+        _sm_platform, _sm_query = spec_missing_info
+        from PyQt5.QtWidgets import QFrame
+        from PyQt5.QtGui import QDesktopServices
+        banner = QFrame()
+        banner.setStyleSheet(
+            'QFrame { background:#fff3cd; border:1px solid #ffc107; border-radius:4px; }'
+        )
+        banner_row = QHBoxLayout(banner)
+        banner_row.setContentsMargins(10, 5, 10, 5)
+        banner_lbl = QLabel(
+            f'\u26a0\ufe0f  Platform <b>{_sm_platform}</b> has no HAS spec data in '
+            f'fuse_spec_db.json \u2014 Description column shows raw pysvtools names. '
+            f'Click <b>Update Spec DB</b> to fix this once.'
+        )
+        banner_lbl.setWordWrap(True)
+        banner_lbl.setStyleSheet('color:#856404; font-size:11px;')
+        update_btn = QPushButton('\U0001f4cb  Update Spec DB')
+        update_btn.setFixedHeight(26)
+        update_btn.setStyleSheet(
+            'QPushButton{background:#ffc107;color:#212529;border:none;'
+            'border-radius:4px;font-weight:bold;padding:0 10px;font-size:11px;}'
+            'QPushButton:hover{background:#e0a800;}'
+        )
+        update_btn.setToolTip(
+            'Copies a Copilot query to your clipboard and opens VS Code Copilot chat.\n'
+            'Just paste (Ctrl+V) and press Enter — Copilot will query CoDesign and\n'
+            'update src/fuse_spec_db.json automatically.'
+        )
+
+        def _on_update_spec_db():
+            from PyQt5.QtWidgets import QApplication
+            QApplication.clipboard().setText(_sm_query)
+            # Try to open VS Code Copilot chat via URI handler
+            try:
+                QDesktopServices.openUrl(QUrl('vscode://GitHub.copilot-chat/chat'))
+            except Exception:
+                pass
+            QMessageBox.information(
+                container,
+                'Query Copied',
+                f'The Copilot query for <b>{_sm_platform}</b> has been copied to your clipboard.'
+                f'<br><br>'
+                f'In the Copilot chat that just opened, press <b>Ctrl+V</b> then <b>Enter</b>.'
+                f'<br><br>'
+                f'<i>If the chat did not open automatically, press <b>Ctrl+Alt+I</b> in VS Code.</i>',
+                QMessageBox.Ok,
+            )
+
+        update_btn.clicked.connect(_on_update_spec_db)
+        banner_row.addWidget(banner_lbl, 1)
+        banner_row.addSpacing(10)
+        banner_row.addWidget(update_btn)
+        layout.addWidget(banner)
 
     # ── Filter widgets ────────────────────────────────────────────────
     ctrls = _build_filter_combos(records)
@@ -230,6 +287,10 @@ def build_registers_tab_widget(records: list, platform_display: str,
             dec_val = '' if rec.get('value') is None else str(rec.get('value'))
             if name in pend:
                 dec_val = str(pend['new_value'])
+            # Prefer HAS spec description when available
+            spec_desc = rec.get('spec_description', '').strip()
+            raw_desc  = rec.get('description', '').strip()
+            disp_desc = spec_desc if spec_desc else raw_desc
             vals = [
                 name,
                 dec_val,
@@ -239,13 +300,49 @@ def build_registers_tab_widget(records: list, platform_display: str,
                 rec.get('category',    ''),
                 rec.get('domain',      ''),
                 rec.get('fuse_path',   ''),
-                rec.get('description', ''),
+                disp_desc,
             ]
             for ci, val in enumerate(vals):
                 item = QTableWidgetItem(val)
                 item.setBackground(bg)
                 if ci == 0:
                     item.setData(Qt.UserRole, name)
+                    # Build spec tooltip from HAS metadata
+                    _prec = rec.get('spec_precision', '').strip()
+                    _unit = rec.get('spec_units', '').strip()
+                    _wid  = rec.get('spec_width', 0)
+                    _dft  = rec.get('spec_default', '').strip()
+                    _doc  = rec.get('spec_doc', '').strip()
+                    _sdesc = spec_desc  # already computed above
+                    if _sdesc or _prec:
+                        _tip_parts = []
+                        if _sdesc:
+                            _tip_parts.append(_sdesc)
+                        if _prec and _unit:
+                            _tip_parts.append(f'Format: {_prec}  ({_unit})')
+                        elif _prec:
+                            _tip_parts.append(f'Format: {_prec}')
+                        if _wid:
+                            _tip_parts.append(f'Width: {_wid} bit{"s" if _wid != 1 else ""}')
+                        if _dft:
+                            _tip_parts.append(f'Default: {_dft}')
+                        if _doc:
+                            _tip_parts.append(f'Source: {_doc}')
+                        item.setToolTip('\n'.join(_tip_parts))
+                elif ci == 3:
+                    # Converted column: tooltip explains the precision format
+                    _prec = rec.get('spec_precision', '').strip()
+                    _unit = rec.get('spec_units', '').strip()
+                    if _prec:
+                        _ctip = f'Format: {_prec}'
+                        if _unit:
+                            _ctip += f'  ({_unit})'
+                        item.setToolTip(_ctip)
+                elif ci == 8 and spec_desc:
+                    # Description column: tooltip shows source doc when from HAS
+                    _doc = rec.get('spec_doc', '').strip()
+                    if _doc:
+                        item.setToolTip(f'Source: {_doc}')
                 _ro_cats = {'itd_voltage', 'itd_slope', 'p0_override', 'acode_min'}
                 _sensor_row = rec.get('category', '') in _ro_cats
                 if ci in EDITABLE_COLS and not _sensor_row:
@@ -274,7 +371,8 @@ def build_registers_tab_widget(records: list, platform_display: str,
             and (not act_only or r.get('active'))
             and (not query
                  or query in r.get('name', '').lower()
-                 or query in r.get('description', '').lower())
+                 or query in r.get('description', '').lower()
+                 or query in r.get('spec_description', '').lower())
         ]
         _populate(filtered)
         info_lbl.setText(
@@ -312,7 +410,8 @@ def build_registers_tab_widget(records: list, platform_display: str,
             and (not act_only or r.get('active'))
             and (not query
                  or query in r.get('name', '').lower()
-                 or query in r.get('description', '').lower())
+                 or query in r.get('description', '').lower()
+                 or query in r.get('spec_description', '').lower())
         ]
         path = export_discovered_registers_to_excel(
             platform_display=platform_display, records=exp_recs
