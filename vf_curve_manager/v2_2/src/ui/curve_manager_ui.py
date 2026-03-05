@@ -115,6 +115,15 @@ class CurveManagerUI(ThemeMixin, DomainMixin, OperationsMixin, DiscoveryMixin, P
         from utils import hardware_access as _ha
         if getattr(_ha, 'MOCK_MODE', False):
             return  # nothing to filter in mock mode
+
+        # If discovery ran this session, the pipeline already validated every
+        # register as accessible.  Skipping the zero-WP read avoids a race where
+        # the fuse RAM session guard (correctly) prevents a reload and the
+        # subsequent reads return zeros, incorrectly pruning all domains.
+        if getattr(self.config_loader, '_just_discovered', False):
+            log.info("Zero-WP filter skipped — domains freshly discovered this session")
+            return
+
         self._zero_wp_worker = _ZeroWpFilterWorker(self.config_loader, parent=self)
         self._zero_wp_worker.finished_signal.connect(self._on_zero_wp_filter_done)
         self._zero_wp_worker.start()

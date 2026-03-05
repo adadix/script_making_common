@@ -31,26 +31,54 @@ log = logging.getLogger(__name__)
 class _SuppressHWNoise:
     """Suppress all pysvtools console noise during hardware access.
 
-    Stacks two layers so both WCL and NVL are covered:
+    Stacks six layers so both WCL and NVL are fully silenced:
       1. contextlib.redirect_stdout/stderr  — catches Python-level sys.stdout/
          sys.stderr writes (sufficient on WCL / Python 3.10).
-      2. os.dup2 fd redirect to os.devnull  — catches C-extension writes that
-         bypass sys.stdout (required on NVL / Python 3.13 different-CRT DLLs).
+      2. sys.__stdout__ / sys.__stderr__ patch — catches namednodes code that
+         saved a reference to the original stream objects at import time and
+         prints through those (bypassing layer 1).
+      3. os.dup2 fd redirect to os.devnull  — catches C-extension writes that
+         bypass sys.stdout entirely (required on NVL / Python 3.13 different-CRT
+         DLLs).
+      4. Windows UCRT freopen — Python 3.10+ uses ucrtbase.dll (Universal CRT);
+         legacy msvcrt.dll does NOT export __acrt_iob_func so we try ucrtbase
+         first.  Redirects fprintf() calls inside C extensions to NUL.
+      5. Win32 SetStdHandle — redirects the OS-level STD_OUTPUT/ERROR_HANDLE so
+         that code calling GetStdHandle() at write-time also writes to NUL.
+      6. builtins.print monkey-patch — catches every bare print() call in
+         third-party code (namednodes/pysvtools) regardless of which stream
+         object it targets.  Guaranteed catch for hardcoded print() calls that
+         bypass all other layers (e.g. buffered writes flushed after dup2
+         restores, or streams captured at library import time).
     """
     def __init__(self) -> None:
         self._saved: dict = {}
         self._null_fd = None
         self._ctx = None
+        self._orig_dunder: dict = {}
+        self._win32_null_handle = None  # Layer 5
+        self._win32_orig_handles: dict = {}  # Layer 5
+        self._orig_builtin_print = None      # Layer 6
 
     def __enter__(self):
         import contextlib as _cl
         import io as _io
+        import sys as _sys
+        _sink = _io.StringIO()
         # Layer 1: Python-level stream redirect
         self._ctx = _cl.ExitStack()
         self._ctx.__enter__()
-        self._ctx.enter_context(_cl.redirect_stdout(_io.StringIO()))
-        self._ctx.enter_context(_cl.redirect_stderr(_io.StringIO()))
-        # Layer 2: fd-level redirect
+        self._ctx.enter_context(_cl.redirect_stdout(_sink))
+        self._ctx.enter_context(_cl.redirect_stderr(_sink))
+        # Layer 2: patch sys.__stdout__ / sys.__stderr__ (bypassed by namednodes
+        # code that cached the original stream objects at import time)
+        for _attr in ('__stdout__', '__stderr__'):
+            self._orig_dunder[_attr] = getattr(_sys, _attr, None)
+            try:
+                setattr(_sys, _attr, _sink)
+            except (AttributeError, TypeError):
+                pass
+        # Layer 3: fd-level redirect (suppresses C-extension / different-CRT writes)
         try:
             self._null_fd = os.open(os.devnull, os.O_WRONLY)
             for fd in (1, 2):
@@ -58,9 +86,97 @@ class _SuppressHWNoise:
                 os.dup2(self._null_fd, fd)
         except OSError:
             pass
+        # Layer 4: Windows CRT freopen("NUL", "w", stdout/stderr)
+        # Python 3.10+ on Windows uses the Universal CRT (ucrtbase.dll).
+        # Legacy msvcrt.dll does NOT export __acrt_iob_func — try ucrtbase first.
+        try:
+            import ctypes as _ct
+            for _dll_name in ('ucrtbase', 'msvcrt'):
+                try:
+                    _crt = _ct.CDLL(_dll_name, use_errno=True)
+                    _iob_func = _crt.__acrt_iob_func
+                    _iob_func.restype = _ct.c_void_p
+                    _iob_func.argtypes = [_ct.c_uint]
+                    _crt.freopen.restype = _ct.c_void_p
+                    _crt.freopen.argtypes = [_ct.c_char_p, _ct.c_char_p, _ct.c_void_p]
+                    _crt.freopen(b'NUL', b'w', _iob_func(1))  # stdout (index 1)
+                    _crt.freopen(b'NUL', b'w', _iob_func(2))  # stderr (index 2)
+                    break
+                except (OSError, AttributeError):
+                    continue
+        except (OSError, AttributeError):
+            pass
+        # Layer 5: Win32 SetStdHandle — redirects the OS-level standard handles
+        # so code that calls GetStdHandle() at write-time is also silenced.
+        try:
+            import ctypes as _ct
+            _k32 = _ct.windll.kernel32
+            _k32.CreateFileW.restype = _ct.c_void_p
+            _null_h = _k32.CreateFileW('NUL', 0x40000000, 0x3, None, 3, 0, None)
+            if _null_h and _null_h != 0xFFFFFFFFFFFFFFFF:
+                self._win32_null_handle = _null_h
+                _k32.GetStdHandle.restype = _ct.c_void_p
+                for _std_id in (-11, -12):  # STD_OUTPUT_HANDLE, STD_ERROR_HANDLE
+                    self._win32_orig_handles[_std_id] = _k32.GetStdHandle(_std_id)
+                    _k32.SetStdHandle(_std_id, _null_h)
+        except Exception:
+            pass
+        # Layer 6: monkey-patch builtins.print to a no-op so that hardcoded
+        # print() calls in namednodes/pysvtools are silenced regardless of
+        # which stream object they write to or whether buffering deferred the
+        # flush past the dup2 window.  The main thread is blocked on
+        # _fut.result() while this runs so no legitimate tool output is lost.
+        try:
+            import builtins as _bi
+            self._orig_builtin_print = _bi.print
+            _bi.print = lambda *_a, **_kw: None
+        except Exception:
+            pass
         return self
 
     def __exit__(self, *_):
+        import sys as _sys
+        # Restore builtins.print (layer 6) — first so following restores can
+        # print normally if they need to.
+        try:
+            import builtins as _bi
+            if self._orig_builtin_print is not None:
+                _bi.print = self._orig_builtin_print
+                self._orig_builtin_print = None
+        except Exception:
+            pass
+        # Restore Win32 handles (layer 5) — before CRT restore so the CRT's
+        # freopen can resolve the original console handle.
+        try:
+            if self._win32_null_handle is not None:
+                import ctypes as _ct
+                _k32 = _ct.windll.kernel32
+                for _std_id, _orig_h in self._win32_orig_handles.items():
+                    _k32.SetStdHandle(_std_id, _orig_h)
+                _k32.CloseHandle(self._win32_null_handle)
+                self._win32_null_handle = None
+                self._win32_orig_handles.clear()
+        except Exception:
+            pass
+        # Restore CRT streams (layer 4) — ucrtbase/msvcrt fallback.
+        try:
+            import ctypes as _ct
+            for _dll_name in ('ucrtbase', 'msvcrt'):
+                try:
+                    _crt = _ct.CDLL(_dll_name, use_errno=True)
+                    _iob_func = _crt.__acrt_iob_func
+                    _iob_func.restype = _ct.c_void_p
+                    _iob_func.argtypes = [_ct.c_uint]
+                    _crt.freopen.restype = _ct.c_void_p
+                    _crt.freopen.argtypes = [_ct.c_char_p, _ct.c_char_p, _ct.c_void_p]
+                    _crt.freopen(b'CON', b'w', _iob_func(1))
+                    _crt.freopen(b'CON', b'w', _iob_func(2))
+                    break
+                except (OSError, AttributeError):
+                    continue
+        except (OSError, AttributeError):
+            pass
+        # Restore fd-level (layer 3)
         for fd, saved in self._saved.items():
             try:
                 os.dup2(saved, fd)
@@ -74,6 +190,14 @@ class _SuppressHWNoise:
                 pass
         self._saved.clear()
         self._null_fd = None
+        # Restore sys.__stdout__ / sys.__stderr__ (layer 2)
+        for _attr, _orig in self._orig_dunder.items():
+            try:
+                setattr(_sys, _attr, _orig)
+            except (AttributeError, TypeError):
+                pass
+        self._orig_dunder.clear()
+        # Restore Python-level streams (layer 1)
         if self._ctx is not None:
             self._ctx.__exit__(None, None, None)
             self._ctx = None
@@ -123,17 +247,50 @@ def get_fuse_object(fuse_path):
         parts = fuse_path.split('.')
         root_name = parts[0]
 
-        # Prefer the injected namespace; fall back to __main__ if init_hardware
-        # was not called yet (e.g. during module-level import in tests).
+        # ── Root resolution: three layers (most to least authoritative) ──────
+        # Layer 1: injected namespace (globals() from the launcher).
+        #   Works when `from pysvtools.pmext.services.regs import *` succeeded
+        #   and populated cdie / soc / etc. into the launcher globals.
+        # Layer 2: namednodes module.
+        #   Works on platforms where the regs import fails with TypeError
+        #   (e.g. Novalake/PantherCove) but ITP itself is fully connected.
+        # Layer 3: resolve_object from discovery_core (checks __main__ +
+        #   call-stack frames as a last resort).
+        # A path is only unresolvable when ALL three layers fail.
         namespace = _ha._itp_namespace if _ha._itp_namespace else vars(__import__('__main__'))
 
-        if root_name not in namespace:
-            log.error(f"Failed to resolve fuse path '{fuse_path}': "
-                  f"'{root_name}' not found in ITP namespace. "
-                  f"Ensure init_hardware(namespace=globals()) was called from the launcher.")
+        root_obj = None
+
+        # Layer 1 — injected namespace
+        if root_name in namespace:
+            root_obj = namespace[root_name]
+
+        # Layer 2 — namednodes
+        if root_obj is None:
+            try:
+                import namednodes as _nn
+                if hasattr(_nn, root_name):
+                    root_obj = getattr(_nn, root_name)
+            except Exception:
+                pass
+
+        # Layer 3 — resolve_object (also checks __main__ and call-stack frames)
+        if root_obj is None:
+            try:
+                from discovery.auto_discover_vf_registers import resolve_object as _ro
+                root_obj = _ro(root_name)
+            except Exception:
+                pass
+
+        if root_obj is None:
+            log.error(
+                f"Failed to resolve fuse path '{fuse_path}': "
+                f"'{root_name}' not found via namespace, namednodes, or resolve_object. "
+                f"Ensure init_hardware(namespace=globals()) was called from the launcher."
+            )
             return None
 
-        obj = namespace[root_name]
+        obj = root_obj
 
         # Traverse remaining parts
         for part in parts[1:]:
@@ -373,12 +530,26 @@ def load_fuse_ram(domain_info) -> None | bool:
                 log.warning(f"load_fuse_ram() not available for {domain_info.get('label')}")
                 return False
         except Exception as ex:
+            import traceback as _tb
             error_str: str = str(ex).lower()
+            tb_str: str = _tb.format_exc().lower()
             # Postcondition failure: fuse data IS in memory; only the cleanup
-            # (_enable_dcg IOSF-SB flush) failed.  Mark as loaded and return
-            # True to prevent a retry that would re-trigger the dangerous write.
-            if ('post condition' in error_str or 'postcondition' in error_str
-                    or 'accesstimeouterror' in error_str.replace(' ', '')):
+            # (_enable_dcg IOSF-SB flush / semaphore write) failed.
+            # Detect two variants:
+            #   1. AccessTimeoutError (cdie.fuses style) — exception text contains the type name
+            #   2. IPC_Error 0x8000000f (soc.fuses style) — exception from run_postcondition
+            #      frame; we distinguish it from a "real" target-down by checking the call stack.
+            _is_postcond_by_type = (
+                'post condition' in error_str
+                or 'postcondition' in error_str
+                or 'accesstimeouterror' in error_str.replace(' ', '')
+            )
+            _is_postcond_by_stack = (
+                'run_postcondition' in tb_str
+                or '_precondition_gen2' in tb_str
+                or 'postcondition' in tb_str
+            )
+            if _is_postcond_by_type or _is_postcond_by_stack:
                 log.warning(
                     f"\n[!] Fuse RAM post-condition timed out for '{frp}' "
                     f"— this is expected on active-boot platforms.\n"
@@ -399,7 +570,24 @@ def load_fuse_ram(domain_info) -> None | bool:
         # Use the first-attempt exception if it contains more detail
         root_cause: Exception = first_exception if first_exception is not None else ex
         error_str: str = str(root_cause).lower()
-        
+
+        # ── Security-lock errors (non-retryable) ─────────────────────────────
+        # "Timeout setting clock mux" / "Red unlock required" mean the ITP does
+        # not have the DCI/JTAG security authorisation to access fuse registers.
+        # No amount of reconnect/forcereconfig can fix this — only pre-granting
+        # Red unlock before tool launch resolves it.  Return immediately so we
+        # don't trigger repeated platform resets trying to recover.
+        is_security_lock: bool = any(
+            keyword in error_str for keyword in _ha._SECURITY_LOCK_KEYWORDS)
+        if is_security_lock:
+            log.error(
+                f"\n[!] Fuse RAM load blocked by security lock: {root_cause}\n"
+                f"    This error ('clock mux timeout' / 'Red unlock required') means\n"
+                f"    the ITP session does NOT have fuse-register access permissions.\n"
+                f"    FIX: Grant Red unlock on the DCI/JTAG connection before launching\n"
+                f"    the tool, then re-run.  No retry is attempted (would cause resets).")
+            return False
+
         # Check for IPC connection loss - needs reinitialization
         is_ipc_loss: bool = any(keyword in error_str for keyword in _ha._IPC_LOSS_KEYWORDS)
         
@@ -409,12 +597,20 @@ def load_fuse_ram(domain_info) -> None | bool:
         # Check if it's a critical power state error
         is_critical_error: bool = any(keyword in error_str for keyword in _ha._CRITICAL_KEYWORDS)
         
+        # Lazy imports – placed here to avoid circular import chain:
+        #   fuse_io → itp_recovery → hardware_access → fuse_io
+        from .itp_recovery import (  # noqa: PLC0415
+            reinitialize_ipc_itp as _reinit_ipc,
+            _wait_for_target_reconnect as _wait_reconnect,
+            recover_from_deep_sleep as _recover_sleep,
+        )
+
         # Handle IPC connection loss first (most severe)
         if is_ipc_loss:
             log.error(f"IPC connection lost during load_fuse_ram: {ex}")
             
             # Attempt to reinitialize IPC/ITP
-            if reinitialize_ipc_itp():
+            if _reinit_ipc():
                 log.info("Retrying load_fuse_ram after IPC reinitialization...")
                 with _SuppressHWNoise():
                     try:
@@ -441,7 +637,7 @@ def load_fuse_ram(domain_info) -> None | bool:
             log.info(f"    fuse_ram_path: {lfa.get('fuse_ram_path', '?')}")
             log.info(f"    Time        : {lfa.get('timestamp', '?')}")
             log.info(f"[TIP] Run '🔬 Probe Reset Trigger' from the UI to isolate the offending domain.")
-            if _wait_for_target_reconnect(timeout_s=45):
+            if _wait_reconnect(timeout_s=45):
                 log.info("Retrying load_fuse_ram after target reconnect...")
                 with _SuppressHWNoise():
                     try:
@@ -463,12 +659,13 @@ def load_fuse_ram(domain_info) -> None | bool:
             
             # Always attempt full ITP recovery for critical errors
             try:
-                _do_itp_reconnect_sequence(label="load_fuse_ram")
+                from .itp_recovery import _do_itp_reconnect_sequence as _reconnect_seq
+                _reconnect_seq(label="load_fuse_ram")
                 log.info("[SUCCESS] ITP recovery completed")
                 
                 # If SUT verification enabled, do full recovery with ping check
                 if _ha.ENABLE_SUT_VERIFICATION:
-                    recover_from_deep_sleep(bypass_cooldown=True)
+                    _recover_sleep(bypass_cooldown=True)
                 else:
                     # Even without SUT verification, give hardware time to stabilize
                     log.info("Waiting 3 seconds for hardware to stabilize...")
@@ -500,7 +697,7 @@ def load_fuse_ram(domain_info) -> None | bool:
                     # Check if IPC connection was lost during retry
                     if any(kw in error_msg for kw in _ha._IPC_LOSS_KEYWORDS):
                         log.warning("IPC connection lost during retry - attempting reinitialization...")
-                        if reinitialize_ipc_itp():
+                        if _reinit_ipc():
                             log.info("Final retry after IPC reinit...")
                             with _SuppressHWNoise():
                                 try:
@@ -586,12 +783,30 @@ def flush_fuse_ram(domain_info) -> None | bool:
         # Check if it's a critical power state error
         is_critical_error: bool = any(keyword in error_str for keyword in _ha._CRITICAL_KEYWORDS)
         
+        # Non-retryable security lock — return immediately (retrying causes HW resets)
+        is_security_lock: bool = any(
+            keyword in error_str for keyword in _ha._SECURITY_LOCK_KEYWORDS)
+        if is_security_lock:
+            log.error(
+                f"\n[!] Fuse RAM flush blocked by security lock: {root_cause}\n"
+                f"    FIX: Grant Red unlock on the DCI/JTAG connection before launching\n"
+                f"    the tool, then re-run.  No retry is attempted (would cause resets).")
+            return False
+
+        # Lazy imports – placed here to avoid circular import chain:
+        #   fuse_io → itp_recovery → hardware_access → fuse_io
+        from .itp_recovery import (  # noqa: PLC0415
+            reinitialize_ipc_itp as _reinit_ipc,
+            _wait_for_target_reconnect as _wait_reconnect,
+            recover_from_deep_sleep as _recover_sleep,
+        )
+
         # Handle IPC connection loss first (most severe)
         if is_ipc_loss:
             log.error(f"IPC connection lost during flush_fuse_ram: {ex}")
             
             # Attempt to reinitialize IPC/ITP
-            if reinitialize_ipc_itp():
+            if _reinit_ipc():
                 log.info("Retrying flush_fuse_ram after IPC reinitialization...")
                 with _SuppressHWNoise():
                     try:
@@ -611,7 +826,7 @@ def flush_fuse_ram(domain_info) -> None | bool:
         # Handle target-powered-down (0x8000000f) — wait for target to come back
         elif is_target_down:
             log.error(f"Target disconnected/powered down during flush_fuse_ram: {ex}")
-            if _wait_for_target_reconnect(timeout_s=45):
+            if _wait_reconnect(timeout_s=45):
                 log.info("Retrying flush_fuse_ram after target reconnect...")
                 with _SuppressHWNoise():
                     try:
@@ -645,7 +860,7 @@ def flush_fuse_ram(domain_info) -> None | bool:
                 
                 # If SUT verification enabled, do full recovery with ping check
                 if _ha.ENABLE_SUT_VERIFICATION:
-                    recover_from_deep_sleep(bypass_cooldown=True)
+                    _recover_sleep(bypass_cooldown=True)
                 else:
                     log.info("Waiting 3 seconds for hardware to stabilize...")
                     time.sleep(3)
@@ -677,7 +892,7 @@ def flush_fuse_ram(domain_info) -> None | bool:
                     # Check if IPC connection was lost during retry
                     if any(kw in error_msg for kw in _ha._IPC_LOSS_KEYWORDS):
                         log.warning("IPC connection lost during retry - attempting reinitialization...")
-                        if reinitialize_ipc_itp():
+                        if _reinit_ipc():
                             log.info("Final retry after IPC reinit...")
                             with _SuppressHWNoise():
                                 try:

@@ -15,9 +15,10 @@ log = logging.getLogger(__name__)
 class _DiscoveryWorker(QThread):
     """Run discovery in a background thread so the Qt event loop never blocks."""
 
-    finished = pyqtSignal(object, object, object, object)
-    progress = pyqtSignal(str)
-    error    = pyqtSignal(str)
+    finished      = pyqtSignal(object, object, object, object)
+    progress      = pyqtSignal(str)
+    progress_step = pyqtSignal(int, int)   # (current_path_index, total_paths)
+    error         = pyqtSignal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -76,13 +77,19 @@ class _DiscoveryWorker(QThread):
                 return None, None, None
 
             n = len(fuse_paths)
-            self.progress.emit("Scanning {} fuse path(s)...\n(this takes several minutes)".format(n))
+            self.progress.emit("Scanning {} fuse path(s)...\n\nThis may take several minutes.".format(n))
+            self.progress_step.emit(0, n)   # pre-range the bar before the loop
             log.info("[DiscoveryWorker] scanning %d fuse paths", n)
 
             all_path_results = {}
             for i, path_str in enumerate(fuse_paths):
                 label = path_str.split(".")[-1]
-                self.progress.emit("Scanning path {}/{}:\n{}".format(i + 1, n, label))
+                pct   = int((i + 1) * 100 / n)
+                self.progress.emit(
+                    "Scanning path {}/{}: {}\n\n{} of {} paths complete  ({}%)".format(
+                        i + 1, n, label, i + 1, n, pct)
+                )
+                self.progress_step.emit(i + 1, n)
                 result = analyze_fuse_path(path_str, label, cfg)
                 if result:
                     all_path_results[path_str] = result
@@ -186,7 +193,7 @@ class DiscoveryMixin:
         dlg.setWindowTitle("Discovering Registers")
         dlg.setWindowModality(Qt.WindowModal)
         dlg.setMinimumDuration(0)
-        dlg.setMinimumWidth(420)
+        dlg.setMinimumWidth(500)
         dlg.setValue(0)
         dlg.show()
 
@@ -196,6 +203,13 @@ class DiscoveryMixin:
         def _on_progress(msg):
             if not dlg.wasCanceled():
                 dlg.setLabelText(msg)
+
+        def _on_progress_step(current, total):
+            """Switch the dialog from indeterminate to a live progress bar."""
+            if not dlg.wasCanceled():
+                if dlg.maximum() != total:
+                    dlg.setMaximum(total)
+                dlg.setValue(current)
 
         def _on_error(msg):
             dlg.close()
@@ -216,6 +230,7 @@ class DiscoveryMixin:
             self._populate_registers_tab(records, platform_display, timestamp, hw_status)
 
         worker.progress.connect(_on_progress)
+        worker.progress_step.connect(_on_progress_step)
         worker.error.connect(_on_error)
         worker.finished.connect(_on_finished)
 

@@ -211,7 +211,7 @@
     },
     "novalake": {
       "display_name": "Nova Lake (NVL)",
-      "fuse_root": "cdie.fuses",
+      "fuse_root": "hub.fuses",
       "core_fuse_pattern": "core{n}_fuse",
       "system_fuse_names": [
         "punit_fuses"

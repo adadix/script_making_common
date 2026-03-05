@@ -57,55 +57,93 @@ def _get_domains_platform() -> str:
     return ''
 
 
+def _domains_json_is_populated() -> bool:
+    """Return True if vf_domains.json exists and contains at least one domain."""
+    try:
+        domains_path = os.path.join(_SRC_DIR, 'vf_domains.json')
+        if not os.path.exists(domains_path):
+            return False
+        with open(domains_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return len(data.get('domains', {})) > 0
+    except Exception:
+        return False
+
+
 def maybe_run_discovery(force: bool = False) -> bool:
     """Run VF register discovery if vf_domains.json is unpopulated (or forced).
 
-    Platform cross-check (two sources, most to least authoritative):
-      1. vf_domains.json  _platform  key  — stamped on every merge write.
-      2. vf_discovery_cache.json platform — fallback when stamp is absent
-         (tool version before stamp was introduced).
+    Decision logic (evaluated in order):
+      1. force=True  → always run (--rediscover mode).
+      2. vf_domains.json is empty / missing  → run unconditionally.
+      3. Platform stamp in vf_domains.json differs from live hardware  → run.
+      4. Discovery cache platform differs from live hardware  → run.
+      5. Platform matches and domains exist  → SKIP (early return False).
 
-    If either recorded platform differs from the hardware detected via ITP,
-    re-discovery is forced immediately — before filter_unreachable_domains()
-    wastes time probing every domain one-by-one.
-
-    Args:
-        force: When True, discovery runs unconditionally (--rediscover mode).
-               When False (default), discovery is skipped if vf_domains.json
-               already contains at least one domain AND the platform matches.
+    Must be called AFTER hardware_access.init_hardware() so that
+    detect_platform_name() can probe the live ITP namespace.
 
     Returns:
-        True  — discovery pipeline ran (vf_domains.json was updated).
-        False — skipped or pipeline raised an error.
+        True  — discovery pipeline ran and vf_domains.json was updated.
+        False — skipped because the file was already up-to-date.
     """
     if not force:
+        # If the file is empty or missing, always run — no point in a platform
+        # check because there is nothing to compare against.
+        if not _domains_json_is_populated():
+            log.info("vf_domains.json is empty or missing — discovery required.")
+            force = True
+
+    if not force:
+        # File has domains — check whether they were built for THIS platform.
         try:
             from .auto_discover_vf_registers import detect_platform_name
             current = detect_platform_name().lower()
 
-            # Primary check: vf_domains.json _platform stamp
+            # Primary check: _platform stamp written by build_vf_domains_from_discovery
             domains_plat = _get_domains_platform()
-            if domains_plat and current and domains_plat != current:
-                log.warning("vf_domains.json was built for '%s' but connected platform is '%s' "
-                            "— forcing re-discovery", domains_plat, current)
+            # Empty stamp means the file was deliberately cleared (e.g. after a
+            # code update) — always rediscover so new root-enumeration logic runs.
+            if not domains_plat:
+                log.info("vf_domains.json has no _platform stamp — forcing re-discovery")
+                force = True
+            elif domains_plat != current:
+                log.warning(
+                    "vf_domains.json was built for '%s' but connected platform is '%s' "
+                    "— forcing re-discovery", domains_plat, current
+                )
                 force = True
 
-            # Fallback check: discovery cache platform
+            # Fallback: discovery cache (present on tools built before the stamp)
             if not force:
                 cached = _get_cached_platform()
                 if cached and current and cached != current:
-                    log.warning("Discovery cache platform '%s' != connected platform '%s' "
-                                "— forcing re-discovery", cached, current)
+                    log.warning(
+                        "Discovery cache platform '%s' != connected platform '%s' "
+                        "— forcing re-discovery", cached, current
+                    )
                     force = True
 
+            # Platform matches and domains exist — nothing to do.
+            if not force:
+                log.info(
+                    "Platform '%s' matches vf_domains.json — skipping discovery.",
+                    current,
+                )
+                return False
+
         except Exception as _pf_ex:
-            log.debug("Platform cross-check skipped: %s", _pf_ex)
+            # If we cannot detect the platform (e.g. ITP not yet ready), run
+            # discovery to be safe — it will detect the platform itself.
+            log.debug("Platform cross-check failed: %s — will run discovery", _pf_ex)
+            force = True
 
-    # Announce so the user can see discovery is actively running
-    # (all subsequent progress is printed directly to the terminal).
-    print("\n[*] Starting VF register discovery — this takes several minutes "
-          "on first run or after platform change.", flush=True)
-
+    # ── Discovery must run ────────────────────────────────────────────────
+    print(
+        "\n[*] Starting VF register discovery — this takes several minutes "
+        "on first run or after platform change.",
+        flush=True,
+    )
     try:
         from .auto_discover_vf_registers import run_discovery_pipeline
         return run_discovery_pipeline(force=force)

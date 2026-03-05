@@ -86,19 +86,11 @@ if not _itp_connected:
                 log.error("Check that the target is connected and OpenIPC is running.")
                 sys.exit(1)
 
-# ── Startup refresh dialog + autonomous discovery ────────────────────────
-# QApplication must be created before any widget/dialog, including the
-# discovery progress (logged to console) that runs below.
+# ── Startup refresh dialog ──────────────────────────────────────────────
+# QApplication must be created before any widget/dialog.
 from PyQt5.QtWidgets import QApplication
 
 _app = QApplication(sys.argv)
-
-# Run discovery only when the platform has changed or vf_domains.json is empty.
-# maybe_run_discovery(force=False) already detects a platform mismatch and
-# triggers a full re-scan automatically when needed, without blocking startup
-# with a costly full fuse scan on every launch.
-from discovery.startup_discovery import maybe_run_discovery
-maybe_run_discovery(force=False)
 # ─────────────────────────────────────────────────────────────────────────
 
 # Import modular components AFTER namednodes to ensure ITP objects are available
@@ -107,12 +99,23 @@ try:
     from core.config_loader import ConfigLoader
     from core.curve_engine import CurveEngine
     from ui.curve_manager_ui import CurveManagerUI
-    
-    # Initialize hardware access module; pass globals() so get_fuse_object
+    from discovery.startup_discovery import maybe_run_discovery
+
+    # Initialize hardware access module FIRST; pass globals() so get_fuse_object
     # resolves ITP root objects (cdie, soc, etc.) from this module's namespace
     # rather than relying on __main__, making it test-friendly.
     hardware_access.init_hardware(ipc, itp, namespace=globals())
-    
+
+    # Register end-of-session cleanup: backs up then clears vf_domains.json and
+    # vf_discovery_cache.json so the next launch always runs fresh discovery.
+    # Pass _app so cleanup is also connected to QApplication.aboutToQuit —
+    # on Windows, Qt can call os._exit() on window-close which bypasses atexit.
+    from utils.session_cleanup import register_cleanup as _reg_cleanup
+    _reg_cleanup(qt_app=_app)
+
+    # NOTE: maybe_run_discovery() is called inside main() — AFTER init_hardware() —
+    # so that the ITP namespace is fully populated before any register probing.
+
 except ImportError as e:
     log.critical("Failed to import modular components: %s\n"
                  "Please ensure:\n"
@@ -123,45 +126,166 @@ except ImportError as e:
     sys.exit(1)
 
 
+def _run_discovery_with_splash(force: bool = False) -> bool:
+    """Run maybe_run_discovery() while showing a blocking progress dialog.
+
+    Keeps the Qt event loop alive (via QApplication.processEvents) so the
+    splash dialog paints and stays responsive while the multi-minute
+    hardware scan runs on the main thread.
+
+    Returns True if discovery ran and wrote at least one domain.
+    """
+    from PyQt5.QtWidgets import QProgressDialog
+    from PyQt5.QtCore import Qt
+
+    splash = QProgressDialog(
+        "Discovering VF registers from hardware…\n"
+        "This may take several minutes on first run.",
+        None,   # no Cancel button
+        0, 0,   # indeterminate progress bar
+    )
+    splash.setWindowTitle("VF Curve Manager — First-run Discovery")
+    splash.setWindowModality(Qt.ApplicationModal)
+    splash.setMinimumWidth(480)
+    splash.setMinimumDuration(0)   # show immediately, no delay
+    splash.setValue(0)
+    splash.show()
+    _app.processEvents()
+
+    try:
+        result = maybe_run_discovery(force=force)
+    finally:
+        splash.close()
+
+    return result
+
+
 def main():
     """Main entry point for VF Curve Manager Tool."""
+    from PyQt5.QtWidgets import QMessageBox
+
     log.info("[1] Loading hardware configuration...")
     try:
         config_path = os.path.join(os.path.dirname(__file__), 'vf_domains.json')
+
+        # ── Discovery ─────────────────────────────────────────────────────────
+        # Runs AFTER init_hardware() so the ITP namespace is fully populated
+        # before any register probing takes place.
+        # A blocking splash dialog is shown during first-run or platform-change
+        # discovery so the user sees progress instead of an empty window.
+        log.info("    Checking platform / domain cache...")
+
+        from discovery.startup_discovery import _domains_json_is_populated, _get_domains_platform
+        from discovery.auto_discover_vf_registers import detect_platform_name as _dpn
+
+        # Determine up-front whether we expect discovery to run, so we can
+        # show the splash only when it will actually do something.
+        _needs_discovery = (
+            not _domains_json_is_populated()
+            or _get_domains_platform() != _dpn().lower()
+        )
+
+        if _needs_discovery:
+            _discovery_ran = _run_discovery_with_splash(force=False)
+        else:
+            _discovery_ran = False
+            maybe_run_discovery(force=False)
+        # ──────────────────────────────────────────────────────────────────────
+
         config_loader = ConfigLoader(config_path)
 
-        # Drop domains whose fuse_path does not exist on this platform
-        # (e.g. WildcatLake punit_fuses entries when running on Novalake).
-        # Must be called after init_hardware() so the ITP namespace is live.
+        # Drop domains whose fuse_path does not exist on this platform.
         config_loader.filter_unreachable_domains()
 
-        # Zero-WP domain filtering (filter_zero_wp_domains) is intentionally
-        # deferred to a background thread that runs after the GUI window is
-        # visible — calling load_fuse_ram() here would block the main thread
-        # and prevent the window from opening on slow platforms (e.g. WCL).
-        # The CurveManagerUI __init__ schedules this via QTimer.singleShot.
-
-        # If filtering left zero domains this is a first run on a new platform —
-        # auto-trigger discovery so the user doesn't have to pass --rediscover.
+        # If filtering left zero domains it means either:
+        #   a) First run on a brand-new platform and vf_domains.json is still empty
+        #   b) A platform mismatch that wasn't caught by the stamp check
+        # Either way, force a full re-discovery with the splash shown.
         if not config_loader.get_domain_list():
-            log.info("No domains found for this platform — running auto-discovery...")
-            from discovery.startup_discovery import maybe_run_discovery
-            maybe_run_discovery(force=True)
-            # Reload the freshly populated config
+            log.info("No domains found after first discovery pass — forcing full re-discovery...")
+            _discovery_ran = _run_discovery_with_splash(force=True)
+            # Reload the freshly written config and re-filter.
             config_loader = ConfigLoader(config_path)
+            config_loader.filter_unreachable_domains()
+
+        # Signal to the GUI that discovery ran this session so the zero-WP
+        # background filter is skipped.  Discovery validated all registers as
+        # accessible; re-reading them 500 ms later while the fuse RAM session
+        # guard prevents a reload causes spurious all-zero reads that would
+        # incorrectly prune every domain from the selector.
+        config_loader._just_discovered = _discovery_ran
+
+        # ── Post-discovery fuse RAM pre-warm + synchronous zero-WP filter ────
+        # On first run the session guard (set by discovery) blocks the
+        # background-thread filter from re-loading fuse RAM, and the ITP fuse
+        # objects may not be thread-safe.  Run the load + filter HERE on the
+        # main thread while ITP is in a stable post-discovery state so the
+        # domain list is correctly trimmed before the GUI window ever opens.
+        if _discovery_ran:
+            log.info("    [post-discovery] Pre-loading fuse RAM and filtering zero-WP domains...")
+            try:
+                from utils.fuse_io import load_fuse_ram
+                from utils import hardware_access as _ha_ref
+
+                # Collect unique fuse_ram_path values across all domains.
+                _loaded: set = set()
+                for _dcfg in config_loader.get_all_domains().values():
+                    _frp = _dcfg.get('fuse_ram_path', _dcfg.get('fuse_path', ''))
+                    if _frp and _frp not in _loaded:
+                        if _frp in _ha_ref._LOADED_FUSE_RAM_PATHS:
+                            # Discovery already loaded this path successfully —
+                            # session guard is valid, no need to reload.
+                            log.info("    [post-discovery] Already loaded by discovery: %s", _frp)
+                        else:
+                            # Discovery failed or didn't reach this path — try once now.
+                            log.info("    [post-discovery] Loading fuse RAM: %s", _frp)
+                            load_fuse_ram(_dcfg)
+                        _loaded.add(_frp)
+
+                # Now run the zero-WP filter synchronously on the main thread.
+                _pruned = config_loader.filter_zero_wp_domains()
+                if _pruned:
+                    log.info("    [post-discovery] Removed %d zero-WP domain(s): %s",
+                             len(_pruned), ', '.join(_pruned))
+                else:
+                    log.info("    [post-discovery] All domains have non-zero WPs — none pruned.")
+            except Exception as _pw_ex:
+                log.warning("    [post-discovery] Pre-warm skipped (non-fatal): %s", _pw_ex)
+        # ─────────────────────────────────────────────────────────────────────
+
+        # ── Hard stop: never open the GUI with zero domains ──────────────────
+        # If discovery succeeded the domain list will be non-empty.
+        # If it is still empty, something went wrong (ITP not ready, platform
+        # not recognised, discovery exception) — show a clear error and exit
+        # rather than opening a useless empty window.
+        if not config_loader.get_domain_list():
+            log.error("Discovery completed but NO domains were found. "
+                      "Check ITP connection, platform_config.json, and logs.")
+            QMessageBox.critical(
+                None,
+                "VF Curve Manager — Discovery Failed",
+                "VF register discovery completed but found no domains.\n\n"
+                "Possible causes:\n"
+                "  • ITP / OpenIPC not connected or not fully initialised\n"
+                "  • Platform not recognised in platform_config.json\n"
+                "  • Fuse RAM load failed (check terminal for errors)\n\n"
+                "Check the terminal output for detailed errors,\n"
+                "then re-run the tool once ITP is ready.",
+            )
+            return 1
 
         # Validate configuration
         is_valid, msg = config_loader.validate_config()
         if not is_valid:
             log.error("Configuration validation failed: %s", msg)
             return 1
-        
+
         domain_count = len(config_loader.get_domain_list())
         log.info("    \u2713 Loaded %d domains successfully", domain_count)
     except Exception as e:
         log.error("    \u2717 Configuration loading failed: %s", e)
         return 1
-    
+
     log.info("[2] Initializing curve operations engine...")
     try:
         curve_engine = CurveEngine(config_loader)
@@ -169,7 +293,7 @@ def main():
     except Exception as e:
         log.error("    \u2717 Engine initialization failed: %s", e)
         return 1
-    
+
     log.info("[3] Launching professional dashboard...")
     try:
         log.info("%s\n  Dashboard ready - Use UI to select domains and manage VF curves\n%s",

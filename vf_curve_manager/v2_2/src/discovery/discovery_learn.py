@@ -1225,14 +1225,18 @@ def build_vf_domains_from_discovery(all_path_results: dict, cfg: dict) -> int:
 
         # Parse conversion hints — 3-tier priority:
         #   1. spec_conversion_hints in platform_config.json  (spec-authoritative)
-        #   2. _parse_desc_conversion_hints() from register descriptions (regex)
-        #   3. _infer_freq_multiplier() keyword heuristic (fallback)
+        #   2. _parse_desc_conversion_hints() from register descriptions  (autonomous
+        #      regex parsing — no LLM needed; Intel descriptions use structured text
+        #      like "ratio in units of 100 MHz" or "U1.8 format" / "1/256 V")
+        #   3. _infer_freq_multiplier() keyword heuristic + cross-domain inheritance:
+        #      pass new_domains (built so far) so gt_acm_vpg inherits from gt,
+        #      cluster1_atom from cluster0_atom, etc.
         desc_hints = _parse_desc_conversion_hints(group.get('_descriptions', []))
         _spec_conv = cfg.get('spec_conversion_hints', {})
         freq_mult = (
             _spec_conv.get(subdomain, {}).get('freq_multiplier')
             or desc_hints.get('freq_multiplier')
-            or _infer_freq_multiplier(subdomain, {})
+            or _infer_freq_multiplier(subdomain, new_domains)
         )
         voltage_lsb_mv = (
             _spec_conv.get(subdomain, {}).get('voltage_lsb_mv')
@@ -1396,6 +1400,29 @@ def run_discovery_pipeline(force: bool = False) -> bool:
     if fuse_root not in _seen_roots_step3:
         _all_roots_to_load.insert(0, fuse_root)
 
+    # ── Halt CPU before fuse load to prevent firmware reset reaction ────────
+    # The soc.fuses postcondition writes to the IOSF-SB semaphore via the
+    # TAP/EXI bridge.  On an active-boot platform the running firmware detects
+    # this IOSF-SB disturbance and triggers a target reset.  Halting the CPU
+    # first freezes the firmware so it cannot react; fuse RAM is loaded
+    # entirely through ITP TAP reads (not CPU instruction stream) so halt
+    # does not interfere with the load itself.
+    _itp_halted: bool = False
+    try:
+        import utils.hardware_access as _ha_h
+        _itp_h = getattr(_ha_h, 'itp', None)
+        if _itp_h is not None and hasattr(_itp_h, 'halt'):
+            log.info("[Step 3] Halting CPU before fuse-RAM load (prevents firmware reset reaction)...")
+            print("  [Step 3] Halting CPU before fuse load...", flush=True)
+            _itp_h.halt()
+            _itp_halted = True
+            log.info("[Step 3] CPU halted OK.")
+        else:
+            log.info("[Step 3] itp.halt() not available — proceeding without halt (settle-only mitigation active).")
+    except Exception as _halt_ex:
+        log.warning(f"[Step 3] itp.halt() failed (non-fatal, continuing): {_halt_ex}")
+        print(f"  [Step 3] Halt skipped ({_halt_ex}); fuse load will proceed anyway.", flush=True)
+
     log.info(f"\n[*] Step 3: Loading fuse RAM for {len(_all_roots_to_load)} root(s): "
              f"{_all_roots_to_load}")
     for _root_idx, _load_root in enumerate(_all_roots_to_load):
@@ -1418,31 +1445,91 @@ def run_discovery_pipeline(force: bool = False) -> bool:
     except Exception as _nfl_err:
         log.warning(f"Could not register fuse roots in session guard: {_nfl_err}")
 
-    # ── Structural / metadata path labels that never contain VF registers ───
-    # Skipping these avoids unnecessary dir() + hardware reads for ~20-30 paths.
-    _STEP4_SKIP_LABELS: frozenset = frozenset({
-        # Structural / metadata — never contain VF registers
-        'cache', 'code_patches', 'definition', 'formulas', 'groups', 'hooks',
-        'hw_state_loaded', 'offline_mode', 'origin', 'parent', 'reserved',
-        'snapshot', 'stored_values',
-        # Hardware controller / infrastructure objects — block on dir() or reads
+    # ── Post-Step-3 stability settle + CPU resume ─────────────────────────
+    # Even with the CPU halted the TAP/EXI physical link can take a moment
+    # to fully re-establish after the postcondition write.  We keep a short
+    # settle before issuing itp.go() so Step 4 reads don't race link recovery.
+    # If the CPU was not halted the settle alone is the only mitigation.
+    _SETTLE_SECS: int = 3   # shorter now that firmware is frozen during load
+    log.info(f"\n[*] Post-Step-3: waiting {_SETTLE_SECS}s for EXI/DCI link to stabilize...")
+    print(f"  [Step 3→4] Waiting {_SETTLE_SECS}s for link settle...",
+          end='', flush=True)
+    for _s in range(_SETTLE_SECS, 0, -1):
+        time.sleep(1)
+        print(f" {_s}", end='', flush=True)
+    print("  ready.", flush=True)
+    log.info("Post-Step-3 settle complete.")
+
+    # ── Resume CPU after fuse load (itp.go) ───────────────────────────────
+    if _itp_halted:
+        try:
+            import utils.hardware_access as _ha_go
+            _itp_go = getattr(_ha_go, 'itp', None)
+            if _itp_go is not None and hasattr(_itp_go, 'go'):
+                log.info("[Step 3→4] Resuming CPU (itp.go)...")
+                print("  [Step 3→4] Resuming CPU (itp.go)...", flush=True)
+                _itp_go.go()
+                log.info("[Step 3→4] CPU resumed OK — proceeding to Step 4 register scan.")
+                print("  [Step 3→4] CPU resumed OK.", flush=True)
+            else:
+                log.warning("[Step 3→4] itp.go() not found — CPU may still be halted!")
+                print("  [Step 3→4] WARNING: itp.go() not available; CPU may still be halted.", flush=True)
+        except Exception as _go_ex:
+            log.error(f"[Step 3→4] itp.go() raised: {_go_ex} — CPU may still be halted!")
+            print(f"  [Step 3→4] WARNING: itp.go() failed ({_go_ex}); attempting to continue.", flush=True)
+    else:
+        log.info("[Step 3→4] CPU was not halted by this tool; no itp.go() needed.")
+
+    # ── ITP reset-event callback — installed for the entire Step 4 scan ───
+    # Whenever the ITP background thread fires a TargetEvent Reset, we record
+    # _LAST_DISCOVERY_ACCESS at that instant so the log shows exactly which
+    # fuse path / register was being scanned when the reset was reported.
+    # This callback runs in the ITP event thread; it only does a dict copy
+    # and a log call so it is thread-safe and fast.
+    _reset_events_during_scan: list = []  # [(timestamp, path, register)]
+
+    def _on_itp_target_event(*args, **kwargs) -> None:
+        """Callback: log which path/register was active when a reset event fired."""
+        try:
+            from datetime import datetime as _dt
+            from discovery.discovery_core import _LAST_DISCOVERY_ACCESS as _lda
+            _ts: str = _dt.now().strftime('%H:%M:%S.%f')
+            _fp: str = _lda.get('fuse_path') or '(before scan)'
+            _rn: str = _lda.get('register')  or '(none)'
+            msg = (f"  [RESET-CORRELATOR] TargetEvent Reset at {_ts}\n"
+                   f"    Active path : {_fp}\n"
+                   f"    Active reg  : {_rn}  ← most recently touched register\n"
+                   f"    Note: ITP events are async; the actual cause may be the\n"
+                   f"          preceding path/register, not necessarily this one.")
+            log.warning(msg)
+            print(msg, flush=True)
+            _reset_events_during_scan.append((_ts, _fp, _rn))
+        except Exception:
+            pass
+
+    _itp_cb_registered: bool = False
+    try:
+        import utils.hardware_access as _ha_cb
+        _itp_obj = getattr(_ha_cb, 'itp', None)
+        if _itp_obj is not None:
+            for _cb_method in ('addTargetEventCallback', 'registerTargetEventHandler',
+                               'add_target_event_callback', 'on_target_event'):
+                if hasattr(_itp_obj, _cb_method):
+                    getattr(_itp_obj, _cb_method)(_on_itp_target_event)
+                    _itp_cb_registered = True
+                    log.info(f"[RESET-CORRELATOR] callback registered via itp.{_cb_method}()")
+                    break
+            if not _itp_cb_registered:
+                log.info("[RESET-CORRELATOR] itp has no known callback API — passive only")
+    except Exception as _cb_ex:
+        log.info(f"[RESET-CORRELATOR] callback setup failed (non-fatal): {_cb_ex}")
+
+    # ── Paths that hang on dir() itself — skip entirely ────────────────────
+    # Everything else is now scanned; non-VF registers go into the 'non_vf'
+    # category without any hardware reads (names only, value=None).
+    _DANGER_SKIP_LABELS: frozenset = frozenset({
         'fuse_controller', 'fuse_puller', 'fusehip_fuses',
-        # Connectivity / IO — no VF relevance
-        'cnvb_fuse', 'dbc_ddbc', 'dfxagg', 'dfxagg_top', 'dfx_ep_top',
-        'endebug', 'exi', 'fia', 'fia_p', 'fia_xg',
-        'fproxy0', 'fproxys',
-        'gbe', 'hdas', 'isclk', 'ish', 'lpc', 'otg',
-        'pcie0', 'pcie2', 'pcies',
-        'saf_pma', 'sgunit', 'smb', 'sncu_fuse', 'spi',
-        'tc_fia0', 'tc_fias', 'tc_iom',
-        'tc_pcie0', 'tc_pcie1', 'tc_pcies',
-        'tc_tbt0', 'tc_tbts', 'tc_usb3x',
-        'thc0_fuse', 'thc1_fuse',
-        'usb2phy', 'usb3phy', 'usbx',
-        'bisr_repair_fuse',
     })
-    _STEP4_SKIP_PREFIXES: tuple = ('save_restore_', 'csme_', 'osse_', 'gpcom',
-                                   'mpphy', 'ucie', 'tc_pga')
 
     # Step 4: analyse all fuse paths — with cold-reset resume support
     _n_paths: int = len(fuse_paths)
@@ -1456,8 +1543,8 @@ def run_discovery_pipeline(force: bool = False) -> bool:
     for _path_idx, path_str in enumerate(fuse_paths):
         label = path_str.split('.')[-1]
 
-        # ── Fast skip: structural / metadata paths ────────────────────────────
-        if label in _STEP4_SKIP_LABELS or any(label.startswith(p) for p in _STEP4_SKIP_PREFIXES):
+        # ── Fast skip: paths that genuinely hang on dir() ────────────────────
+        if label in _DANGER_SKIP_LABELS:
             _skipped_structural += 1
             log.info(f"[Step 4] Skipping structural path: {path_str}")
             continue
@@ -1533,12 +1620,12 @@ def run_discovery_pipeline(force: bool = False) -> bool:
     _scanned = _n_paths - _skipped_structural
     log.info(
         f"[Step 4] complete: {_scanned} path(s) scanned, "
-        f"{_skipped_structural} non-VF structural path(s) skipped, "
+        f"{_skipped_structural} dir()-unsafe path(s) skipped, "
         f"in {_scan_elapsed:.1f}s"
     )
     print(
         f"  [Step 4] Scan complete: {_scanned}/{_n_paths} path(s) scanned "
-        f"({_skipped_structural} structural skipped) in {_scan_elapsed:.1f}s",
+        f"({_skipped_structural} dir()-unsafe paths skipped) in {_scan_elapsed:.1f}s",
         flush=True,
     )
     if _scan_errors:
@@ -1547,6 +1634,36 @@ def run_discovery_pipeline(force: bool = False) -> bool:
             log.info(f"  • {_e}")
         print(f"  [!] {len(_scan_errors)} path(s) skipped — see log for details.",
               flush=True)
+
+    # ── Unregister ITP reset-event callback ───────────────────────────────
+    if _itp_cb_registered:
+        try:
+            import utils.hardware_access as _ha_cb
+            _itp_obj = getattr(_ha_cb, 'itp', None)
+            if _itp_obj is not None:
+                for _rm_method in ('removeTargetEventCallback', 'unregisterTargetEventHandler',
+                                   'remove_target_event_callback'):
+                    if hasattr(_itp_obj, _rm_method):
+                        getattr(_itp_obj, _rm_method)(_on_itp_target_event)
+                        break
+        except Exception:
+            pass
+
+    # ── Reset-event correlation summary ───────────────────────────────────
+    if _reset_events_during_scan:
+        log.warning(f"\n{'!'*70}")
+        log.warning(f"  [RESET-CORRELATOR] {len(_reset_events_during_scan)} reset event(s) "
+                    f"detected during Step 4 scan:")
+        for _rv_ts, _rv_fp, _rv_rn in _reset_events_during_scan:
+            log.warning(f"    {_rv_ts}  path={_rv_fp}  reg={_rv_rn}")
+        log.warning(f"  Root cause: soc.fuses.load_fuse_ram() postcondition writes to")
+        log.warning(f"  the IOSF-SB semaphore via TAP/EXI while the platform is in")
+        log.warning(f"  active-boot state.  This transiently disrupts the EXI/DCI link.")
+        log.warning(f"  The {_SETTLE_SECS}s post-Step-3 settle delay mitigates this; if resets")
+        log.warning(f"  persist, increase _SETTLE_SECS in discovery_learn.py.")
+        log.warning(f"{'!'*70}")
+        print(f"  [!] {len(_reset_events_during_scan)} reset event(s) detected during scan "
+              f"— see log for path/register correlation.", flush=True)
 
     # Step 4.5: auto-learn any unknown-domain registers; save patterns to JSON
     auto_learn_unknown_patterns(all_path_results, platform_name, cfg)

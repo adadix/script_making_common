@@ -50,12 +50,24 @@ _IPC_LOSS_KEYWORDS: list[str] = [
     'connection to openipc was lost', 'openipc was lost',
     'openipc may no longer be running'
 ]
+# Non-retryable security/permission errors — no software recovery is possible.
+# These require Red unlock (DCI / JTAG security authorisation) which must be
+# granted by the user before launching the tool.  Attempting ITP reconnect or
+# forcereconfig when this error occurs only causes repeated platform resets.
+_SECURITY_LOCK_KEYWORDS: list[str] = [
+    'timeout setting clock mux',
+    'clock mux',
+    "couldn't check security level",
+    'security level authorization',
+    'requires red unlock',
+    'red unlock',
+    'tap indirect requires',
+]
 _CRITICAL_KEYWORDS: list[str] = [
     'slp_s5', 'sleep state', 'sleep_state',
     'packageawake', 'package awake',
     'pltrst', 'platform reset', 'reset is asserted',
     'early boot', 'earlyboot',
-    'timeout setting clock mux', 'clock mux',
     'unable to wake cores', 'wake cores',
     'cpu power is de-asserted', 'power is de-asserted',
     'postcondition', 'post condition'

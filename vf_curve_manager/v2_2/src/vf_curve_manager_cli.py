@@ -1234,6 +1234,15 @@ For more information, see USER_GUIDE.md
     if not init_itp():
         return 1
 
+    # Register end-of-session cleanup: backs up then clears vf_domains.json and
+    # vf_discovery_cache.json so the next launch always runs fresh discovery.
+    if not mock_mode:
+        try:
+            from utils.session_cleanup import register_cleanup as _reg_cleanup
+            _reg_cleanup()
+        except Exception:
+            pass
+
     # probe-platform only needs ITP up — runs before discovery / setup_modules
     if args.command == 'probe-platform':
         return cmd_probe_platform(args)

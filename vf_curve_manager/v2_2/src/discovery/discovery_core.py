@@ -48,39 +48,152 @@ _LOGS_ROOT.mkdir(exist_ok=True)
 class _SuppressHWNoise:
     """Suppress all pysvtools console noise during hardware access.
 
-    Stacks two layers so both WCL and NVL are covered:
+    Stacks six layers so both WCL and NVL are fully silenced:
       1. contextlib.redirect_stdout/stderr  — catches Python-level sys.stdout/
-         sys.stderr writes (sufficient on WCL / Python 3.10 where pysvtools
-         uses the same CRT as Python).
-      2. os.dup2 fd redirect to os.devnull  — catches C-extension writes that
-         bypass sys.stdout entirely (required on NVL / Python 3.13 where
-         pysvtools DLLs use a different MSVC CRT instance).
+         sys.stderr writes (sufficient on WCL / Python 3.10).
+      2. sys.__stdout__ / sys.__stderr__ patch — catches namednodes code that
+         saved a reference to the original stream objects at import time and
+         prints through those (bypassing layer 1).
+      3. os.dup2 fd redirect to os.devnull  — catches C-extension writes that
+         bypass sys.stdout entirely (required on NVL / Python 3.13 different-CRT
+         DLLs).
+      4. Windows UCRT freopen — Python 3.10+ uses ucrtbase.dll (Universal CRT);
+         legacy msvcrt.dll does NOT export __acrt_iob_func so we try ucrtbase
+         first.  Redirects fprintf() calls inside C extensions to NUL.
+      5. Win32 SetStdHandle — redirects the OS-level STD_OUTPUT/ERROR_HANDLE so
+         that code calling GetStdHandle() at write-time also writes to NUL.
+      6. builtins.print monkey-patch — catches every bare print() call in
+         third-party code (namednodes/pysvtools) regardless of which stream
+         object it targets.  Guaranteed catch for hardcoded print() calls that
+         bypass all other layers (e.g. buffered writes flushed after dup2
+         restores, or streams captured at library import time).
     """
     def __init__(self) -> None:
         self._saved: dict[int, int] = {}
         self._null_fd: int | None = None
         self._ctx: "contextlib.ExitStack | None" = None
+        self._orig_dunder: dict = {}
+        self._win32_null_handle: int | None = None  # Layer 5
+        self._win32_orig_handles: dict = {}          # Layer 5
+        self._orig_builtin_print = None              # Layer 6
 
     def __enter__(self) -> "_SuppressHWNoise":
         import contextlib as _cl
         import io as _io
+        import sys as _sys
+        _sink = _io.StringIO()
         # Layer 1: Python-level stream redirect
         self._ctx = _cl.ExitStack()
         self._ctx.__enter__()
-        self._ctx.enter_context(_cl.redirect_stdout(_io.StringIO()))
-        self._ctx.enter_context(_cl.redirect_stderr(_io.StringIO()))
-        # Layer 2: fd-level redirect (suppresses C-extension / different-CRT writes)
+        self._ctx.enter_context(_cl.redirect_stdout(_sink))
+        self._ctx.enter_context(_cl.redirect_stderr(_sink))
+        # Layer 2: patch sys.__stdout__ / sys.__stderr__ (bypassed by namednodes
+        # code that cached the original stream objects at import time)
+        for _attr in ('__stdout__', '__stderr__'):
+            self._orig_dunder[_attr] = getattr(_sys, _attr, None)
+            try:
+                setattr(_sys, _attr, _sink)
+            except (AttributeError, TypeError):
+                pass
+        # Layer 3: fd-level redirect (suppresses C-extension / different-CRT writes)
         try:
             self._null_fd = os.open(os.devnull, os.O_WRONLY)
             for fd in (1, 2):
                 self._saved[fd] = os.dup(fd)
                 os.dup2(self._null_fd, fd)
         except OSError:
-            pass  # fd redirect unavailable — layer 1 still active
+            pass  # fd redirect unavailable — layers 1-2 still active
+        # Layer 4: Windows CRT freopen("NUL", "w", stdout/stderr)
+        # Python 3.10+ on Windows uses the Universal CRT (ucrtbase.dll).
+        # Legacy msvcrt.dll does NOT export __acrt_iob_func — try ucrtbase first.
+        try:
+            import ctypes as _ct
+            for _dll_name in ('ucrtbase', 'msvcrt'):
+                try:
+                    _crt = _ct.CDLL(_dll_name, use_errno=True)
+                    _iob_func = _crt.__acrt_iob_func
+                    _iob_func.restype = _ct.c_void_p
+                    _iob_func.argtypes = [_ct.c_uint]
+                    _crt.freopen.restype = _ct.c_void_p
+                    _crt.freopen.argtypes = [_ct.c_char_p, _ct.c_char_p, _ct.c_void_p]
+                    _crt.freopen(b'NUL', b'w', _iob_func(1))  # stdout (index 1)
+                    _crt.freopen(b'NUL', b'w', _iob_func(2))  # stderr (index 2)
+                    break
+                except (OSError, AttributeError):
+                    continue
+        except (OSError, AttributeError):
+            pass
+        # Layer 5: Win32 SetStdHandle — redirects the OS-level standard handles
+        # so code that calls GetStdHandle() at write-time is also silenced.
+        try:
+            import ctypes as _ct
+            _k32 = _ct.windll.kernel32
+            _k32.CreateFileW.restype = _ct.c_void_p
+            _null_h = _k32.CreateFileW('NUL', 0x40000000, 0x3, None, 3, 0, None)
+            if _null_h and _null_h != 0xFFFFFFFFFFFFFFFF:
+                self._win32_null_handle = _null_h
+                _k32.GetStdHandle.restype = _ct.c_void_p
+                for _std_id in (-11, -12):  # STD_OUTPUT_HANDLE, STD_ERROR_HANDLE
+                    self._win32_orig_handles[_std_id] = _k32.GetStdHandle(_std_id)
+                    _k32.SetStdHandle(_std_id, _null_h)
+        except Exception:
+            pass
+        # Layer 6: monkey-patch builtins.print to a no-op so that hardcoded
+        # print() calls in namednodes/pysvtools are silenced regardless of
+        # which stream object they write to or whether buffering deferred the
+        # flush past the dup2 window.  The main thread is blocked on
+        # _fut.result() while this runs so no legitimate tool output is lost.
+        try:
+            import builtins as _bi
+            self._orig_builtin_print = _bi.print
+            _bi.print = lambda *_a, **_kw: None
+        except Exception:
+            pass
         return self
 
     def __exit__(self, *_):
-        # Restore fd-level first (so streams are live again before Python teardown)
+        import sys as _sys
+        # Restore builtins.print (layer 6) — first so following restores can
+        # print normally if they need to.
+        try:
+            import builtins as _bi
+            if self._orig_builtin_print is not None:
+                _bi.print = self._orig_builtin_print
+                self._orig_builtin_print = None
+        except Exception:
+            pass
+        # Restore Win32 handles (layer 5) — before CRT restore so the CRT's
+        # freopen can resolve the original console handle.
+        try:
+            if self._win32_null_handle is not None:
+                import ctypes as _ct
+                _k32 = _ct.windll.kernel32
+                for _std_id, _orig_h in self._win32_orig_handles.items():
+                    _k32.SetStdHandle(_std_id, _orig_h)
+                _k32.CloseHandle(self._win32_null_handle)
+                self._win32_null_handle = None
+                self._win32_orig_handles.clear()
+        except Exception:
+            pass
+        # Restore CRT streams (layer 4) — ucrtbase/msvcrt fallback.
+        try:
+            import ctypes as _ct
+            for _dll_name in ('ucrtbase', 'msvcrt'):
+                try:
+                    _crt = _ct.CDLL(_dll_name, use_errno=True)
+                    _iob_func = _crt.__acrt_iob_func
+                    _iob_func.restype = _ct.c_void_p
+                    _iob_func.argtypes = [_ct.c_uint]
+                    _crt.freopen.restype = _ct.c_void_p
+                    _crt.freopen.argtypes = [_ct.c_char_p, _ct.c_char_p, _ct.c_void_p]
+                    _crt.freopen(b'CON', b'w', _iob_func(1))
+                    _crt.freopen(b'CON', b'w', _iob_func(2))
+                    break
+                except (OSError, AttributeError):
+                    continue
+        except (OSError, AttributeError):
+            pass
+        # Restore fd-level (layer 3)
         for fd, saved in self._saved.items():
             try:
                 os.dup2(saved, fd)
@@ -94,7 +207,14 @@ class _SuppressHWNoise:
                 pass
         self._saved.clear()
         self._null_fd = None
-        # Restore Python-level streams
+        # Restore sys.__stdout__ / sys.__stderr__ (layer 2)
+        for _attr, _orig in self._orig_dunder.items():
+            try:
+                setattr(_sys, _attr, _orig)
+            except (AttributeError, TypeError):
+                pass
+        self._orig_dunder.clear()
+        # Restore Python-level streams (layer 1)
         if self._ctx is not None:
             self._ctx.__exit__(None, None, None)
             self._ctx = None
@@ -107,7 +227,8 @@ DISCOVERY_CACHE_PATH: Path = SCRIPT_DIR / 'vf_discovery_cache.json'
 # namednodes enumeration yields nothing.
 # ---------------------------------------------------------------------------
 _FUSE_ROOT_CANDIDATES: list[str] = [
-    'cdie.fuses',   # current Intel default
+    'cdie.fuses',   # current Intel default (WildcatLake, MeteorLake, ...)
+    'hub.fuses',    # NovaLake / PantherCove tile root
     'soc.fuses',    # possible future Intel / non-Intel
     'die.fuses',
     'chip.fuses',
@@ -446,25 +567,31 @@ def resolve_object(path_str: str):
 def _enumerate_fuse_roots() -> list:
     """Return ALL live fuse roots visible on the currently connected platform.
 
-    Discovery strategy (most to least authoritative):
+    Discovery strategy — BOTH steps always run and results are merged:
 
       Step 1 — namednodes inspection
         namednodes is the pythonsv global namespace that holds every named node
-        (cdie, cdie0, cdie1, soc, …).  We dir() it, skip private names, and
-        check whether each node has a 'fuses' attribute.  This handles any
-        naming convention without code changes.
+        (cdie, cdie0, cdie1, hub, soc, …).  We dir() it, skip private names,
+        and check whether each node has a 'fuses' attribute.  This handles any
+        naming convention without code changes and finds ALL roots dynamically
+        (e.g. both cdie.fuses AND hub.fuses on NovaLake).
 
-      Step 2 — static candidate list
-        If namednodes is unavailable or yields nothing, fall through to
-        _FUSE_ROOT_CANDIDATES and return whichever paths resolve.
+      Step 2 — static candidate list — ALWAYS run regardless of Step 1
+        Catches nodes that namednodes missed (e.g. hasattr() raised silently
+        due to a proxy exception) or when namednodes itself is unavailable.
+        All candidates in _FUSE_ROOT_CANDIDATES that resolve are included.
 
-    Returns a list of dot-paths such as ['cdie.fuses', 'cdie0.fuses'].
+    Results from both steps are deduplicated.  Order: namednodes first
+    (alphabetical) then any additional static candidates.
+
+    Returns a list of dot-paths such as ['cdie.fuses', 'hub.fuses'].
     Never returns an empty list — falls back to ['cdie.fuses'] as the
     ultimate default so callers always have something to try.
     """
-    found = []
+    found: list = []
+    seen:  set  = set()
 
-    # --- Step 1: namednodes ---
+    # --- Step 1: namednodes — scan EVERY top-level node ---
     try:
         import namednodes as _nn
         for node_name in sorted(dir(_nn)):
@@ -485,22 +612,33 @@ def _enumerate_fuse_roots() -> list:
                 continue
             if has_fuses:
                 fuse_root: str = f"{node_name}.fuses"
-                obj = resolve_object(fuse_root)
-                if obj is not None:
-                    found.append(fuse_root)
+                if fuse_root not in seen:
+                    obj = resolve_object(fuse_root)
+                    if obj is not None:
+                        found.append(fuse_root)
+                        seen.add(fuse_root)
     except Exception:
-        pass  # namednodes not available — fall through
+        pass  # namednodes not available — fall through to static candidates
+
+    # --- Step 2: static candidates — ALWAYS tried in addition to namednodes.
+    # This ensures hub.fuses, soc.fuses, etc. are found even when a proxy
+    # object's hasattr() raised an exception that was silently caught above,
+    # or when namednodes itself is unavailable.
+    for candidate in _FUSE_ROOT_CANDIDATES:
+        if candidate not in seen:
+            obj = resolve_object(candidate)
+            if obj is not None:
+                found.append(candidate)
+                seen.add(candidate)
 
     if found:
+        log.info(f"    [*] Enumerated {len(found)} live fuse root(s): {found}")
         return found
 
-    # --- Step 2: static candidates ---
-    for candidate in _FUSE_ROOT_CANDIDATES:
-        obj = resolve_object(candidate)
-        if obj is not None:
-            found.append(candidate)
-
-    return found if found else [_FUSE_ROOT_CANDIDATES[0]]
+    # Ultimate fallback — should never be reached on a live ITP connection
+    log.warning(f"    [!] No live fuse roots resolved — defaulting to "
+                f"{_FUSE_ROOT_CANDIDATES[0]}")
+    return [_FUSE_ROOT_CANDIDATES[0]]
 
 
 def _probe_fuse_root() -> str:
@@ -750,19 +888,12 @@ def discover_fuse_paths(cfg: dict) -> list:
                     seen_paths.add(p)
             continue
 
-        # dir() of this fuse root succeeded — pysvtools auto-loads fuse RAM
-        # when any attribute of the .fuses object is accessed.  Mark this root
-        # as pre-loaded in the session guard so load_fuse_ram_once() (Step 3)
-        # detects it and skips the explicit hardware call, which would hang on
-        # a double-load (observed on WCL with soc.fuses).
-        try:
-            from utils.hardware_access import notify_fuse_ram_loaded as _nfl
-            _nfl(fuse_root)
-            log.info(f"    [pre-load] {fuse_root} marked as loaded "
-                     f"(dir() already accessed fuse data)")
-        except Exception:
-            pass
-
+        # NOTE: do NOT pre-mark this root as loaded here.  dir() of a pythonsv
+        # proxy can return attribute names without triggering an actual fuse RAM
+        # load — whether it does so is platform-dependent.  The explicit
+        # load_fuse_ram_once() call in Step 3 of run_discovery_pipeline() is the
+        # authoritative load path; it has its own double-load guards (session
+        # guard + object-level flags + timeout) that handle every platform safely.
         log.info(f"\n[+] {fuse_root} — {len(containers)} container(s):")
         for attr_name, full_path, bucket in containers:
             log.info(f"    [{bucket}]  {full_path}")
@@ -870,18 +1001,29 @@ def load_fuse_ram_once(fuse_root: str) -> bool:
         _notify_hw_access_loaded()
         return True
     except Exception as e:
+        import traceback as _tb
         error_str: str = str(e).lower()
         exc_type: str  = type(e).__name__.lower()
-        # Postcondition failure: "post condition failed" / AccessTimeoutError in
-        # the cleanup phase.  The fuse data IS in memory — only the _enable_dcg
-        # IOSF-SB write failed.  Treat as loaded so the UI doesn't re-load and
-        # re-trigger the same write in active-boot state (which cold-resets).
-        # NOTE: str(e) contains the timeout *message*, not the class name, so
-        # we must also check type(e).__name__ to catch AccessTimeoutError.
-        is_postcondition: bool = ('post condition' in error_str or
-                            'postcondition' in error_str or
-                            'accesstimeouterror' in error_str.replace(' ', '') or
-                            'accesstimeouterror' in exc_type)
+        tb_str:   str  = _tb.format_exc().lower()
+        # Postcondition failure: fuse data IS in memory — only the _enable_dcg
+        # IOSF-SB semaphore write (cleanup phase) failed.  Two variants:
+        #   1. AccessTimeoutError  — str(e) or type name contains the keyword
+        #   2. IPC_Error 0x8000000f from run_postcondition — error_str is just
+        #      "internal_error == 0x8000000f" but the call stack has the frame.
+        # Checking the traceback string distinguishes this from a genuine
+        # target-down error that occurs BEFORE the fuse read completes.
+        _is_postcond_by_type = (
+            'post condition' in error_str
+            or 'postcondition' in error_str
+            or 'accesstimeouterror' in error_str.replace(' ', '')
+            or 'accesstimeouterror' in exc_type
+        )
+        _is_postcond_by_stack = (
+            'run_postcondition' in tb_str
+            or '_precondition_gen2' in tb_str
+            or 'postcondition' in tb_str
+        )
+        is_postcondition: bool = _is_postcond_by_type or _is_postcond_by_stack
         if is_postcondition:
             log.warning(
                 f"\n[!] Fuse RAM post-condition timed out for '{fuse_root}' "
@@ -920,11 +1062,12 @@ def get_vf_registers_in_path(path_str: str) -> tuple:
     if obj is None:
         return None, []
 
-    all_attrs: list[str] = dir(obj)
-    register_names: list[str] = [
-        a for a in all_attrs
-        if not a.startswith('_') and not callable(getattr(obj, a, None))
-    ]
+    with _SuppressHWNoise():
+        all_attrs: list[str] = dir(obj)
+        register_names: list[str] = [
+            a for a in all_attrs
+            if not a.startswith('_') and not callable(getattr(obj, a, None))
+        ]
     return obj, register_names
 
 
@@ -983,8 +1126,19 @@ def get_register_info(obj, reg_name: str) -> dict:
                     # ComponentGroup or other non-scalar — silently ignore
                     return info
                 except Exception as _te:
+                    # Re-raise target-down / IPC-lost errors so the outer
+                    # run_discovery_pipeline() cold-reset handler can trigger
+                    # wait-for-reboot + retry.  All other errors are non-fatal.
+                    _te_str: str = str(_te).lower()
+                    if any(kw in _te_str for kw in _DISCOVERY_TARGET_DOWN_KW):
+                        raise  # propagates through analyze_fuse_path → pipeline
                     log.debug(f"  [skip] '{reg_name}': {_te}")
                     info['error'] = str(_te)
+                    return info
+
+                # Guard: some ITP proxy types override __int__ but return
+                # a non-int (e.g. attrdict).  Discard those silently.
+                if not isinstance(int_val, int):
                     return info
 
                 info['value'] = int_val
@@ -1024,6 +1178,7 @@ def get_register_info(obj, reg_name: str) -> dict:
             log.info("       the domain listed in vf_domains.json.")
             log.info("!" * 70)
             log.info("")
+            raise  # let run_discovery_pipeline() cold-reset handler take over
     return info
 
 
@@ -1101,13 +1256,24 @@ def analyze_fuse_path(path_str: str, path_label: str, cfg: dict) -> dict:
         n for n in register_names
         if any(kw in n.lower() for kw in _VF_SCREEN_KEYWORDS)
     ]
+    non_vf_register_names = [
+        n for n in register_names
+        if n not in vf_register_names
+    ]
     if not vf_register_names:
-        log.info(f"[skip] No VF keywords in {len(register_names)} attributes of "
-                 f"{path_str} — skipping register reads")
-        return {}
-    discarded = len(register_names) - len(vf_register_names)
+        # No VF registers — record all attribute names as non_vf (no HW reads)
+        log.info(f"[non_vf] No VF keywords in {len(register_names)} attributes of "
+                 f"{path_str} — cataloguing as non_vf (no hardware reads)")
+        non_vf_entries = [
+            {'name': n, 'value': None, 'hex': None, 'description': None,
+             'accessible': False, 'active': False,
+             'category': 'non_vf', 'domain': 'non_vf'}
+            for n in register_names
+        ]
+        return {'non_vf': non_vf_entries} if non_vf_entries else {}
+    discarded = len(non_vf_register_names)
     log.info(f"Found {len(vf_register_names)} VF-related registers "
-             f"(discarded {discarded} non-VF attributes without reading hardware)")
+             f"({discarded} non-VF attribute(s) will be catalogued without hardware reads)")
     register_names = vf_register_names
     # ─────────────────────────────────────────────────────────────────────
 
@@ -1133,6 +1299,16 @@ def analyze_fuse_path(path_str: str, path_label: str, cfg: dict) -> dict:
                 info['category'] = category
                 info['domain'] = domain
                 results_by_category[category].append(info)
+
+    # ── Append non-VF attribute names (no hardware reads) ────────────────
+    if non_vf_register_names:
+        non_vf_entries = [
+            {'name': n, 'value': None, 'hex': None, 'description': None,
+             'accessible': False, 'active': False,
+             'category': 'non_vf', 'domain': 'non_vf'}
+            for n in non_vf_register_names
+        ]
+        results_by_category['non_vf'].extend(non_vf_entries)
 
     total_active: int = sum(len([r for r in regs if r['active']]) for regs in results_by_category.values())
     log.info(f"{total_active} active (non-zero) registers found in {path_label}")
@@ -1345,9 +1521,18 @@ def _save_discovery_cache(records: list, platform_name: str,
         clean = []
         for r in records:
             v = r.get('value')
+            # Coerce to plain int — guards against ITP proxy objects (attrdict,
+            # numpy.int64, WrappedValue, etc.) that survive into the cache dict.
+            if v is not None:
+                try:
+                    v = int(v)
+                    if not isinstance(v, int):
+                        v = None
+                except (TypeError, ValueError, OverflowError):
+                    v = None
             clean.append({
                 'name':        str(r.get('name', '')),
-                'value':       (int(v) if v is not None else None),
+                'value':       v,
                 'hex':         str(r.get('hex', '')),
                 'active':      bool(r.get('active', False)),
                 'category':    str(r.get('category', '')),

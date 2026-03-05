@@ -132,11 +132,7 @@ class ConfigLoader:
         domains_platform = self.config.get('_platform', '').lower()
         if domains_platform:
             try:
-                import sys as _sys
-                _src = os.path.dirname(os.path.dirname(__file__))
-                if _src not in _sys.path:
-                    _sys.path.insert(0, _src)
-                from auto_discover_vf_registers import detect_platform_name
+                from discovery.auto_discover_vf_registers import detect_platform_name
                 current_platform = detect_platform_name().lower()
                 if current_platform and domains_platform != current_platform:
                     bad_all = list(self.config.get('domains', {}).keys())
@@ -146,7 +142,56 @@ class ConfigLoader:
                                 domains_platform, current_platform, len(bad_all))
                     return bad_all
             except Exception as _pe:
-                pass  # detection failed — fall through to per-domain probe
+                log.debug("filter_unreachable_domains: platform check skipped: %s", _pe)
+                # Detection failed — leave the file as-is and do a per-domain probe.
+
+        # ── Per-domain probe ──────────────────────────────────────────────
+        # Attempt to resolve each domain's fuse_path through three layers:
+        #   1. The injected ITP namespace dict (globals() from the launcher).
+        #   2. namednodes — the canonical ITP object tree; covers platforms
+        #      where `from pysvtools.pmext.services.regs import *` failed so
+        #      `cdie` etc. are NOT in the flat globals dict.
+        #   3. discovery.auto_discover_vf_registers.resolve_object — final
+        #      fallback that also checks __main__ and call-stack frames.
+        # A domain is only removed when ALL three layers fail.
+        def _try_resolve(path: str) -> bool:
+            """Return True if path is reachable via any resolution strategy."""
+            parts = path.split('.')
+            root  = parts[0]
+            rest  = parts[1:]
+
+            def _walk(obj):
+                for p in rest:
+                    obj = getattr(obj, p)
+                return True
+
+            # Layer 1: injected namespace dict
+            if root in namespace:
+                try:
+                    _walk(namespace[root])
+                    return True
+                except Exception:
+                    pass
+
+            # Layer 2: namednodes
+            try:
+                import namednodes as _nn
+                if hasattr(_nn, root):
+                    _walk(getattr(_nn, root))
+                    return True
+            except Exception:
+                pass
+
+            # Layer 3: resolve_object (checks __main__ + call-stack frames)
+            try:
+                from discovery.auto_discover_vf_registers import resolve_object as _ro
+                obj = _ro(path)
+                if obj is not None:
+                    return True
+            except Exception:
+                pass
+
+            return False
 
         domains = self.config.get('domains', {})
         bad = []
@@ -155,16 +200,7 @@ class ConfigLoader:
             path = cfg.get('fuse_path', '')
             if not path:
                 continue
-            parts = path.split('.')
-            root = parts[0]
-            if root not in namespace:
-                bad.append(name)
-                continue
-            try:
-                obj = namespace[root]
-                for part in parts[1:]:
-                    obj = getattr(obj, part)
-            except Exception:
+            if not _try_resolve(path):
                 bad.append(name)
 
         for name in bad:
@@ -226,25 +262,50 @@ class ConfigLoader:
         # first explicit load.  All domains that share the same fuse_ram_path (e.g.
         # every punit_fuses domain on cdie.fuses) only trigger one hardware load.
         loaded_paths: set = set()
+        failed_paths: set = set()
         for cfg in domains.values():
             frp = cfg.get('fuse_ram_path', cfg.get('fuse_path', ''))
-            if frp and frp not in loaded_paths:
+            if frp and frp not in loaded_paths and frp not in failed_paths:
                 try:
                     load_fuse_ram(cfg)
                     loaded_paths.add(frp)
                     log.debug("filter_zero_wp_domains: loaded fuse RAM for path '%s'", frp)
                 except Exception as _le:
+                    failed_paths.add(frp)
                     log.debug("filter_zero_wp_domains: load_fuse_ram failed for '%s': %s", frp, _le)
+
+        # If EVERY fuse RAM path failed to load, the hardware isn't ready yet.
+        # Return without pruning — it is safer to show all domains than to
+        # silently hide them because of a transient ITP/power-state issue.
+        if failed_paths and not loaded_paths:
+            log.warning(
+                "filter_zero_wp_domains: all fuse RAM loads failed (%s) — "
+                "skipping zero-WP filter to preserve domain list",
+                ', '.join(sorted(failed_paths)),
+            )
+            return []
 
         bad = []
 
         for name, cfg in list(domains.items()):
             try:
                 wps = read_all_wps(cfg)
+                # read_all_wps returns (None, None) tuples when the fuse object
+                # cannot be resolved (e.g. cdie not yet in namespace).  Treat
+                # an ALL-None voltage result as a READ FAILURE, not as an
+                # all-zero domain — do not prune domains we couldn't read.
+                voltages = [v for (v, _f) in wps]
+                all_none  = all(v is None for v in voltages)
+                if all_none:
+                    log.debug(
+                        "filter_zero_wp_domains: '%s' returned all-None voltages "
+                        "(fuse path not resolvable yet) — keeping domain", name
+                    )
+                    continue
                 # Domain is considered active if at least one WP has a non-zero voltage
                 has_data = any(
                     v is not None and float(v) != 0.0
-                    for (v, _f) in wps
+                    for v in voltages
                 )
                 if not has_data:
                     bad.append(name)

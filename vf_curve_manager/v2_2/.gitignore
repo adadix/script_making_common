@@ -23,6 +23,10 @@ htmlcov/
 coverage.xml
 *.coveragerc
 
+# ── Runtime-generated discovery files (cleared on every exit, rebuilt on launch) ─
+src/vf_domains.json
+src/vf_discovery_cache.json
+
 # ── Tool runtime outputs ──────────────────────────────────────────────────────
 Logs/*.log
 Logs/*.xlsx
