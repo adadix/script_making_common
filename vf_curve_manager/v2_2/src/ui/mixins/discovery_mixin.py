@@ -192,6 +192,8 @@ class DiscoveryMixin:
         dlg = QProgressDialog("Starting discovery...", "Cancel", 0, 0, self)
         dlg.setWindowTitle("Discovering Registers")
         dlg.setWindowModality(Qt.WindowModal)
+        dlg.setAutoClose(False)    # keep dialog open when bar hits 100 %
+        dlg.setAutoReset(False)    # don't reset bar back to 0 at maximum
         dlg.setMinimumDuration(0)
         dlg.setMinimumWidth(500)
         dlg.setValue(0)
