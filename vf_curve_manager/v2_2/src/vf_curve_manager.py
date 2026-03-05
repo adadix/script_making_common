@@ -126,38 +126,99 @@ except ImportError as e:
     sys.exit(1)
 
 
-def _run_discovery_with_splash(force: bool = False) -> bool:
-    """Run maybe_run_discovery() while showing a blocking progress dialog.
+class _DiscoveryWorker:
+    """Thin wrapper that runs ``maybe_run_discovery`` in a background thread.
 
-    Keeps the Qt event loop alive (via QApplication.processEvents) so the
-    splash dialog paints and stays responsive while the multi-minute
-    hardware scan runs on the main thread.
+    Using a plain Python ``threading.Thread`` instead of ``QThread`` avoids
+    the extra QObject overhead and works fine here because we never emit Qt
+    signals from the worker itself — the main thread polls ``is_alive()``
+    via a QTimer.
+    """
+
+    def __init__(self, force: bool) -> None:
+        import threading
+        self._force = force
+        self._result: bool = False
+        self._exc: BaseException | None = None
+        self._thread = threading.Thread(target=self._run, daemon=True,
+                                        name="DiscoveryWorker")
+
+    def _run(self) -> None:
+        try:
+            self._result = maybe_run_discovery(force=self._force)
+        except BaseException as exc:  # noqa: BLE001
+            self._exc = exc
+
+    def start(self) -> None:
+        self._thread.start()
+
+    def is_alive(self) -> bool:
+        return self._thread.is_alive()
+
+    @property
+    def result(self) -> bool:
+        return self._result
+
+    @property
+    def exception(self) -> "BaseException | None":
+        return self._exc
+
+
+def _run_discovery_with_splash(force: bool = False) -> bool:
+    """Run maybe_run_discovery() while showing a non-blocking progress dialog.
+
+    The discovery pipeline is executed in a background daemon thread so the
+    Qt event loop on the main thread stays alive — the dialog repaints, the
+    OS keeps the window responsive, and the animated progress bar actually
+    pulses.
 
     Returns True if discovery ran and wrote at least one domain.
     """
     from PyQt5.QtWidgets import QProgressDialog
-    from PyQt5.QtCore import Qt
+    from PyQt5.QtCore import Qt, QTimer, QEventLoop
 
     splash = QProgressDialog(
         "Discovering VF registers from hardware…\n"
         "This may take several minutes on first run.",
         None,   # no Cancel button
-        0, 0,   # indeterminate progress bar
+        0, 0,   # indeterminate / pulsing bar
     )
     splash.setWindowTitle("VF Curve Manager — First-run Discovery")
     splash.setWindowModality(Qt.ApplicationModal)
     splash.setMinimumWidth(480)
-    splash.setMinimumDuration(0)   # show immediately, no delay
-    splash.setValue(0)
+    splash.setMinimumDuration(0)   # show immediately without the default 2 s delay
+    splash.setAutoClose(False)
+    splash.setAutoReset(False)
+    # Do NOT call setValue() here — with range(0,0) that triggers Qt's internal
+    # "complete" detection and immediately resets/hides the pulsing bar.
     splash.show()
     _app.processEvents()
 
-    try:
-        result = maybe_run_discovery(force=force)
-    finally:
-        splash.close()
+    worker = _DiscoveryWorker(force=force)
+    worker.start()
 
-    return result
+    # Pump the Qt event loop at ~20 Hz until the background thread finishes.
+    # This keeps the dialog responsive and the pulsing bar animated.
+    loop = QEventLoop()
+    timer = QTimer()
+    timer.setInterval(50)   # 50 ms → 20 Hz
+
+    def _check_done():
+        if not worker.is_alive():
+            timer.stop()
+            loop.quit()
+
+    timer.timeout.connect(_check_done)
+    timer.start()
+    loop.exec_()   # blocks main thread but keeps event loop running
+
+    splash.close()
+    _app.processEvents()
+
+    if worker.exception is not None:
+        raise worker.exception  # re-raise on the main thread
+
+    return worker.result
 
 
 def main():

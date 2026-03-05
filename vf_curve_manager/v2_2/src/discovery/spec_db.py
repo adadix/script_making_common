@@ -56,6 +56,7 @@ _IDX: dict[str, dict] = {}          # {PLATFORM: {normalized_key: entry_dict}}
 #  aliased here so their register lookups resolve against the 'GFC' DB section.
 #  WCL/NVL have their own product-level HAS sections and are NOT aliased to GFC.
 _PLATFORM_ALIAS: dict[str, str] = {
+    # Short codes
     'WCL': 'WCL', 'PTL': 'WCL', 'LNL': 'WCL',
     'NVL': 'NVL',
     # GFC is the core IP; RZL, TTL, HBO use GFC-named bigcore fuses
@@ -63,6 +64,21 @@ _PLATFORM_ALIAS: dict[str, str] = {
     'GFC': 'GFC',   # in case a lab system ever reports 'GFC'
     'PNC': 'PNC', 'MTL': 'MTL',
     'LNC': 'LNC', 'RWC': 'RWC', 'GLC': 'GLC',
+    # Full names as reported by pysvtools / namednodes
+    'WILDCATLAKE': 'WCL', 'WILDCAT_LAKE': 'WCL', 'WILDCATLAKE_COMPUTE': 'WCL',
+    'WILDCATLAKE_PCD': 'WCL',
+    'PANTHERLAKE': 'WCL', 'PANTHER_LAKE': 'WCL',
+    'LUNARLAKE': 'WCL', 'LUNAR_LAKE': 'WCL',
+    'NOVALLAKE': 'NVL', 'NOVA_LAKE': 'NVL', 'NOVALLAKE_SOC': 'NVL',
+    'RZLAKE': 'GFC', 'RZ_LAKE': 'GFC',
+    'TTKELLSLAKE': 'GFC', 'TTL': 'GFC', 'TWILIGHTLAKE': 'GFC',
+    'HOODOLAKE': 'GFC', 'HBO_LAKE': 'GFC',
+    'ARROWLAKE': 'GFC', 'ARROW_LAKE': 'GFC', 'ARL': 'GFC',
+    'METEORLAKE': 'MTL', 'METEOR_LAKE': 'MTL',
+    'LUNCHLAKE': 'LNC', 'LUNCH_LAKE': 'LNC',
+    'RAPTORLAKE': 'GFC', 'RAPTOR_LAKE': 'GFC', 'RPL': 'GFC',
+    'GRANDRIDGE': 'GFC', 'GRR': 'GFC',
+    'CLEARWATERLAKE': 'GFC', 'CWL': 'GFC',
 }
 
 #: Map platform → CoDesign MCP project ID (for spec_db_request.json)
@@ -73,6 +89,19 @@ _CODESIGN_PROJECT: dict[str, str] = {
     'GFC': 'GFC', 'RZL': 'GFC', 'TTL': 'GFC', 'HBO': 'GFC',
     'PNC': 'PNC', 'MTL': 'MTL',
     'LNC': 'LNC', 'RWC': 'RWC', 'GLC': 'GLC',
+    # Full names — resolved via alias so we map the *alias* result
+    # but keep these here too so get_codesign_project() works before alias lookup
+    'WILDCATLAKE': 'LNL_PTL_WCL', 'WILDCAT_LAKE': 'LNL_PTL_WCL',
+    'WILDCATLAKE_COMPUTE': 'LNL_PTL_WCL', 'WILDCATLAKE_PCD': 'LNL_PTL_WCL',
+    'PANTHERLAKE': 'LNL_PTL_WCL', 'PANTHER_LAKE': 'LNL_PTL_WCL',
+    'LUNARLAKE': 'LNL_PTL_WCL', 'LUNAR_LAKE': 'LNL_PTL_WCL',
+    'NOVALLAKE': 'NVL', 'NOVA_LAKE': 'NVL', 'NOVALLAKE_SOC': 'NVL',
+    'RZLAKE': 'GFC', 'RZ_LAKE': 'GFC',
+    'ARROWLAKE': 'GFC', 'ARROW_LAKE': 'GFC', 'ARL': 'GFC',
+    'METEORLAKE': 'MTL', 'METEOR_LAKE': 'MTL',
+    'RAPTORLAKE': 'GFC', 'RAPTOR_LAKE': 'GFC', 'RPL': 'GFC',
+    'GRANDRIDGE': 'GFC', 'GRR': 'GFC',
+    'CLEARWATERLAKE': 'GFC', 'CWL': 'GFC',
 }
 
 # ---------------------------------------------------------------------------
@@ -82,6 +111,20 @@ _CODESIGN_PROJECT: dict[str, str] = {
 _STRIP_PREFIXES = ('FW_FUSES_', 'FUSES_CORE_IA_', 'FUSES_CORE_', 'FUSES_IA_', 'FUSES_')
 
 
+# Tokens that carry instance indices in pysvtools / CoDesign names.
+# Normalising them to index-0 lets e.g. ``cluster1_bigcore_vf_voltage`` find
+# the ``CLUSTER0_BIGCORE_VF_VOLTAGE`` DB entry.
+_INDEXED_WORDS = re.compile(
+    r'\b(CLUSTER|TILE|DIE|CHAN|CHANNEL|BANK|SLICE|INST|UNIT|CORE|RING|MODULE)(\d+)\b'
+)
+# Tokens that appear in pysvtools names but have NO equivalent in CoDesign keys.
+# Stripping them lets e.g. ``cluster0_bigcore_tile1_vf_voltage`` find
+# ``CLUSTER0_BIGCORE_VF_VOLTAGE`` (the DB key has no TILE component).
+_EXTRA_TOKENS = re.compile(
+    r'_(TILE|DIE|CHAN|CHANNEL|BANK|SLICE|INST|UNIT|MODULE)\d*'
+)
+
+
 def _norm_candidates(reg_name: str) -> list[str]:
     """Return candidate lookup keys for a pysvtools register name.
 
@@ -89,7 +132,9 @@ def _norm_candidates(reg_name: str) -> list[str]:
       1. Uppercase
       2. Try as-is (handles GT_VF_RATIO_0 style)
       3. Strip common pysvtools/DB prefixes
-      4. For each resulting form, also strip trailing instance index ``_N``
+      4. For each resulting form, strip trailing instance index ``_N``
+      5. Normalise embedded instance indices (CLUSTER1→CLUSTER0, TILE2→0)
+      6. Strip extra structural tokens (TILE0, DIE1 …) absent from DB keys
     """
     base = reg_name.strip().upper()
     forms: list[str] = [base]
@@ -100,15 +145,34 @@ def _norm_candidates(reg_name: str) -> list[str]:
             forms.append(base[len(pfx):])
             break
 
-    # For every form so far also strip trailing ``_<digit(s)>``
+    # Build result: for every form, add trailing-index-stripped variant, then
+    # two extra normalisation passes (keep-0 and strip-extra-tokens).
     result: list[str] = []
     seen: set[str] = set()
+
+    def _add(s: str) -> None:
+        s = re.sub(r'_+', '_', s).strip('_')
+        if s and s not in seen:
+            seen.add(s)
+            result.append(s)
+
     for f in forms:
-        no_idx = re.sub(r'_\d+$', '', f)
-        for c in (f, no_idx):
-            if c and c not in seen:
-                seen.add(c)
-                result.append(c)
+        no_trail = re.sub(r'_\d+$', '', f)
+        for base_f in (f, no_trail):
+            _add(base_f)
+            # Pass A: normalise all embedded WORD\d+ → WORD0
+            normed_0 = _INDEXED_WORDS.sub(lambda m: m.group(1) + '0', base_f)
+            _add(normed_0)
+            _add(re.sub(r'_\d+$', '', normed_0))
+            # Pass B: strip tile/die/chan etc. tokens entirely
+            stripped = _EXTRA_TOKENS.sub('', base_f)
+            _add(stripped)
+            _add(re.sub(r'_\d+$', '', stripped))
+            # Pass C: combined — normalise then strip extra tokens
+            normed_stripped = _EXTRA_TOKENS.sub('', normed_0)
+            _add(normed_stripped)
+            _add(re.sub(r'_\d+$', '', normed_stripped))
+
     return result
 
 
@@ -231,29 +295,36 @@ def get_codesign_project(platform: str) -> str:
     return _CODESIGN_PROJECT.get(str(platform).upper(), '')
 
 
-def write_request(platform: str, register_names: list) -> pathlib.Path:
-    """Write ``spec_db_request.json`` so the user knows what to query.
+def write_request(platform: str,
+                  no_description: list,
+                  no_conversion: list | None = None) -> pathlib.Path:
+    """Write ``spec_db_request.json`` capturing both spec gaps.
 
-    Called when a platform is detected that has no entry in fuse_spec_db.json.
-    The generated file contains the platform name, CoDesign project ID, and a
-    sample register list so Copilot can query CoDesign and update the DB.
+    *no_description* — registers with no entry in fuse_spec_db.json at all.
+    *no_conversion*  — registers that have a description but are missing
+                       ``precision`` and/or ``units`` (needed for Converted column).
     """
     import datetime as _dt
 
-    req_path = _DB_PATH.parent / 'spec_db_request.json'
+    no_conversion = no_conversion or []
+    # _DB_PATH is src/fuse_spec_db.json  →  .parent = src/  →  src/utils/
+    req_path = _DB_PATH.parent / 'utils' / 'spec_db_request.json'
     req: dict = {
-        'platform':         platform,
-        'codesign_project': get_codesign_project(platform),
-        'timestamp':        _dt.datetime.now().isoformat(timespec='seconds'),
-        'register_count':   len(register_names),
-        'register_names':   register_names[:200],
+        'platform':                  platform,
+        'codesign_project':          get_codesign_project(platform),
+        'timestamp':                 _dt.datetime.now().isoformat(timespec='seconds'),
+        'missing_description_count': len(no_description),
+        'missing_description':       no_description,      # full list — NOT truncated
+        'missing_conversion_count':  len(no_conversion),
+        'missing_conversion':        no_conversion,       # full list — NOT truncated
         'instructions': (
-            'Open VS Code and ask Copilot: '
-            '"Please query CoDesign for all VF/ITD/PM fuse specs on '
-            f'{platform} (CoDesign project: {get_codesign_project(platform)}) '
-            'and add them to src/fuse_spec_db.json."'
+            'Two gaps need to be filled in src/fuse_spec_db.json via CoDesign MCP.\n'
+            '1. missing_description: registers with no entry at all — add full entries.\n'
+            '2. missing_conversion: registers missing precision/units — fill those fields.\n'
+            'Paste spec_query_for_copilot.txt into VS Code Copilot chat to fix both.'
         ),
     }
     req_path.write_text(json.dumps(req, indent=2), encoding='utf-8')
-    log.info('spec_db: wrote spec request → %s', req_path)
+    log.info('spec_db: wrote spec request → %s  (%d missing desc, %d missing conv)',
+             req_path, len(no_description), len(no_conversion))
     return req_path

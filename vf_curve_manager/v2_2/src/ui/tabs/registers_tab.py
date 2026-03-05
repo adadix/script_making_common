@@ -16,7 +16,7 @@ from PyQt5.QtWidgets import (
     QCheckBox, QLineEdit, QTableWidget, QTableWidgetItem,
     QMessageBox, QComboBox
 )
-from PyQt5.QtCore import Qt, QUrl
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QColor
 
 
@@ -141,11 +141,24 @@ def _build_registers_table() -> QTableWidget:
         QTableWidget::item:selected { background:#cce5ff; color:#212529; }
     """)
     hdr = table.horizontalHeader()
-    hdr.setSectionResizeMode(0, QHeaderView.Interactive)
+    # All columns are Interactive (user-resizable) so that a single register
+    # with a very large security-key value doesn't blow out column widths.
+    # Description (last col) stretches to fill whatever space remains.
+    for i in range(len(_REG_COLS)):
+        hdr.setSectionResizeMode(i, QHeaderView.Interactive)
     hdr.setSectionResizeMode(len(_REG_COLS) - 1, QHeaderView.Stretch)
-    for i in range(1, len(_REG_COLS) - 1):
-        hdr.setSectionResizeMode(i, QHeaderView.ResizeToContents)
-    table.setColumnWidth(0, 330)
+    # Col 0  Register Name   – wide but not the full 330 so Description gets room
+    # Col 1  Value (Dec)     – capped; most VF values are ≤ 3 digits
+    # Col 2  Value (Hex)     – 0xFFFFFFFF = 10 chars
+    # Col 3  Converted       – e.g. "1.234 V"
+    # Col 4  Active          – "Yes" / "No"
+    # Col 5  Category        – short label
+    # Col 6  Domain          – short label
+    # Col 7  Fuse Path       – truncated with tooltip; full path is long
+    col_widths = [260, 80, 90, 80, 50, 80, 70, 150]
+    for ci, w in enumerate(col_widths):
+        table.setColumnWidth(ci, w)
+    hdr.setMaximumSectionSize(400)   # prevent any single column going >400 px
     table.verticalHeader().setDefaultSectionSize(22)
     return table
 
@@ -176,7 +189,6 @@ def build_registers_tab_widget(records: list, platform_display: str,
     if spec_missing_info:
         _sm_platform, _sm_query = spec_missing_info
         from PyQt5.QtWidgets import QFrame
-        from PyQt5.QtGui import QDesktopServices
         banner = QFrame()
         banner.setStyleSheet(
             'QFrame { background:#fff3cd; border:1px solid #ffc107; border-radius:4px; }'
@@ -184,9 +196,10 @@ def build_registers_tab_widget(records: list, platform_display: str,
         banner_row = QHBoxLayout(banner)
         banner_row.setContentsMargins(10, 5, 10, 5)
         banner_lbl = QLabel(
-            f'\u26a0\ufe0f  Platform <b>{_sm_platform}</b> has no HAS spec data in '
-            f'fuse_spec_db.json \u2014 Description column shows raw pysvtools names. '
-            f'Click <b>Update Spec DB</b> to fix this once.'
+            f'\u26a0\ufe0f  Platform <b>{_sm_platform}</b> has registers missing HAS spec data '
+            f'(description and/or conversion fields) in fuse_spec_db.json \u2014 '
+            f'Description and Converted columns may be incomplete. '
+            f'Click <b>Update Spec DB</b> to query CoDesign Specs MCP for all gaps.'
         )
         banner_lbl.setWordWrap(True)
         banner_lbl.setStyleSheet('color:#856404; font-size:11px;')
@@ -198,29 +211,55 @@ def build_registers_tab_widget(records: list, platform_display: str,
             'QPushButton:hover{background:#e0a800;}'
         )
         update_btn.setToolTip(
-            'Copies a Copilot query to your clipboard and opens VS Code Copilot chat.\n'
-            'Just paste (Ctrl+V) and press Enter — Copilot will query CoDesign and\n'
-            'update src/fuse_spec_db.json automatically.'
+            'Copies the Copilot query (only registers missing spec data)\n'
+            'to your clipboard. Switch to the Copilot panel and press\n'
+            'Ctrl+V then Enter — Copilot will call CoDesign MCP and return\n'
+            'JSON entries to paste into src/fuse_spec_db.json.'
         )
 
         def _on_update_spec_db():
+            import pathlib
             from PyQt5.QtWidgets import QApplication
+            # 1. Copy the query to clipboard
             QApplication.clipboard().setText(_sm_query)
-            # Try to open VS Code Copilot chat via URI handler
+            # 2. Write a durable copy to src/utils/ so it can be pasted manually
             try:
-                QDesktopServices.openUrl(QUrl('vscode://GitHub.copilot-chat/chat'))
+                _qfile = (pathlib.Path(__file__).parent.parent.parent
+                          / 'utils' / 'spec_query_for_copilot.txt')
+                _qfile.write_text(_sm_query, encoding='utf-8')
             except Exception:
                 pass
-            QMessageBox.information(
-                container,
-                'Query Copied',
-                f'The Copilot query for <b>{_sm_platform}</b> has been copied to your clipboard.'
-                f'<br><br>'
-                f'In the Copilot chat that just opened, press <b>Ctrl+V</b> then <b>Enter</b>.'
-                f'<br><br>'
-                f'<i>If the chat did not open automatically, press <b>Ctrl+Alt+I</b> in VS Code.</i>',
-                QMessageBox.Ok,
+            # NOTE: do NOT call QDesktopServices.openUrl('vscode://...') —
+            # it raises a Windows security popup and does nothing useful
+            # (VS Code opens but the chat field is not pre-filled).
+            # The user just needs to switch to Copilot chat and press Ctrl+V.
+
+            # 3. In-banner feedback only — no blocking modal
+            _orig_style = (
+                'QPushButton{background:#ffc107;color:#212529;border:none;'
+                'border-radius:4px;font-weight:bold;padding:0 10px;font-size:11px;}'
+                'QPushButton:hover{background:#e0a800;}'
             )
+            update_btn.setText('\u2705  Copied! Switch to Copilot \u2192 Ctrl+V')
+            update_btn.setStyleSheet(
+                'QPushButton{background:#28a745;color:white;border:none;'
+                'border-radius:4px;font-weight:bold;padding:0 10px;font-size:11px;}'
+                'QPushButton:disabled{background:#28a745;color:white;}'
+            )
+            update_btn.setEnabled(False)
+            banner_lbl.setText(
+                f'\u26a0\ufe0f\u00a0 Query for <b>{_sm_platform}</b> '
+                f'({len(_sm_query.splitlines())} lines, all register names included) '
+                f'copied to clipboard \u2014 switch to the <b>Copilot chat</b> panel, '
+                f'press <b>Ctrl+V</b> then <b>Enter</b>. '
+                f'Query also saved to <i>spec_query_for_copilot.txt</i> in the tool folder.'
+            )
+            # Restore button after 10 s so user can retry if needed
+            def _restore():
+                update_btn.setText('\U0001f4cb\u00a0 Update Spec DB')
+                update_btn.setStyleSheet(_orig_style)
+                update_btn.setEnabled(True)
+            QTimer.singleShot(10000, _restore)
 
         update_btn.clicked.connect(_on_update_spec_db)
         banner_row.addWidget(banner_lbl, 1)
@@ -276,6 +315,7 @@ def build_registers_tab_widget(records: list, platform_display: str,
 
     # ── Populate helper ───────────────────────────────────────────────
     def _populate(recs):
+        from PyQt5.QtWidgets import QApplication
         _populating[0] = True
         table.setSortingEnabled(False)
         table.setRowCount(len(recs))
@@ -329,6 +369,14 @@ def build_registers_tab_widget(records: list, platform_display: str,
                         if _doc:
                             _tip_parts.append(f'Source: {_doc}')
                         item.setToolTip('\n'.join(_tip_parts))
+                elif ci == 1:
+                    # Value (Dec): show full value text as tooltip (useful for
+                    # wide security-key registers that are visually truncated)
+                    if val:
+                        item.setToolTip(val)
+                elif ci == 2:
+                    if val:
+                        item.setToolTip(val)
                 elif ci == 3:
                     # Converted column: tooltip explains the precision format
                     _prec = rec.get('spec_precision', '').strip()
@@ -338,6 +386,10 @@ def build_registers_tab_widget(records: list, platform_display: str,
                         if _unit:
                             _ctip += f'  ({_unit})'
                         item.setToolTip(_ctip)
+                elif ci == 7:
+                    # Fuse Path column: show full path in tooltip (column is narrow)
+                    if val:
+                        item.setToolTip(val)
                 elif ci == 8 and spec_desc:
                     # Description column: tooltip shows source doc when from HAS
                     _doc = rec.get('spec_doc', '').strip()
@@ -352,6 +404,10 @@ def build_registers_tab_widget(records: list, platform_display: str,
                 else:
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                 table.setItem(ri, ci, item)
+            # Yield to the event loop every 200 rows so the progress dialog
+            # keeps pulsing and the OS does not mark the window as frozen.
+            if ri % 200 == 0:
+                QApplication.processEvents()
         table.setSortingEnabled(True)
         _populating[0] = False
 
